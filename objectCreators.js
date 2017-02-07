@@ -162,39 +162,33 @@ function createPillar()
 		
 			box.position.set(pos.x, pos.y, pos.z);
 			
-			//box.addEventListener( 'collision', handleCollision );
-			//box.addEventListener( 'ready', ready );
+
 // screen light ------------------------
 		 
-		 var intensity=1;
-		 var dist=30*WORLDSCALE;
-	            var decay=8;
+		var intensity=1;
+		var dist=30*WORLDSCALE;
+	    var decay=8;
             	
-			var sphere = new THREE.SphereGeometry( 0.1*WORLDSCALE, 12, 8 );
-		  	screenLight = new THREE.PointLight( col, intensity, dist,decay ); //color, intensity, distance, decay (default is 1, 2 is phyical correct)
-			var obj1= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
-				screenLight.add(obj1);
-				screenLight.obj=obj1;
-				screenLight.castShadow=false;//ENABLESHADOWS;
-			//	screenLight.shadow.mapSize.x = mapsize; screenLight.shadow.mapSize.y = mapsize;
-            //    screenLight.shadow.camera.left = -d; screenLight.shadow.camera.right = d;	screenLight.shadow.camera.top = d;	screenLight.shadow.camera.bottom = -d;
-    		//    screenLight.shadow.camera.near = 2;  screenLight.shadow.camera.far = 200*WORLDSCALE;
-    		screenLight.position.z=0.1*WORLDSCALE;
-    		box.add(screenLight);
-            
-            //scene_physi.add( box );
+		var sphere = new THREE.SphereGeometry( 0.1*WORLDSCALE, 12, 8 );
+	  	screenLight = new THREE.PointLight( col, intensity, dist,decay ); //color, intensity, distance, decay (default is 1, 2 is phyical correct)
+		var obj1= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+		screenLight.add(obj1);
+		screenLight.obj=obj1;
+		screenLight.castShadow=false;//ENABLESHADOWS;
+		//	screenLight.shadow.mapSize.x = mapsize; screenLight.shadow.mapSize.y = mapsize;
+        //    screenLight.shadow.camera.left = -d; screenLight.shadow.camera.right = d;	screenLight.shadow.camera.top = d;	screenLight.shadow.camera.bottom = -d;
+		//    screenLight.shadow.camera.near = 2;  screenLight.shadow.camera.far = 200*WORLDSCALE;
+		screenLight.position.z=0.1*WORLDSCALE;
+		box.add(screenLight);
+        
+        //scene_physi.add( box );
 
-            /*
-            var aura=createAura(sx/WORLDSCALE*2,sy/WORLDSCALE/2);
-			box.add(aura);
-			*/
-			box.light=screenLight;
-			screenObj=box;
-
-
-
-
-
+        /*
+        var aura=createAura(sx/WORLDSCALE*2,sy/WORLDSCALE/2);
+		box.add(aura);
+		*/
+		box.light=screenLight;
+		screenObj=box;
 
 		// feet -------------------------
 		var geoFoot=new THREE.BoxBufferGeometry(screenThickness,fullHeight,screenThickness);
@@ -310,7 +304,18 @@ function createPillar()
 		            p.add(center);
 		            p.multiplyScalar(WORLDSCALE);
 					var leg1=createBoxPhys( unit*WORLDSCALE, legHeight*WORLDSCALE, unit*WORLDSCALE, brickMass*WORLDSCALE, p,   false ); //sx, sy, sz, mass, pos) 
-		         			
+		         	var geomLeg1Line=new THREE.Geometry();
+		         	
+					geomLeg1Line.vertices.push(
+						new THREE.Vector3( 0, 0, 0 ),
+						new THREE.Vector3( 0, 100, 0 )
+					);
+
+					var leg1Line = new THREE.Line( geomLeg1Line, lineMaterial );
+					leg1.add( leg1Line );
+					leg1._geomLine=geomLeg1Line;
+
+
 					// LEG2 topright
 		            legHeight=level-layoutHeights[gridx+gridw-1][gridy]-topHeight; 
 		            p=new THREE.Vector3(gridx,gridy,0);
@@ -322,7 +327,7 @@ function createPillar()
 		          //  console.log("unit="+unit+"  legheight="+legHeight+"  pos="+p+" lay="+layoutHeights[gridx+gridw-1][gridy]);
 					p.multiplyScalar(WORLDSCALE);
 					var leg2=createBoxPhys( unit*WORLDSCALE, legHeight*WORLDSCALE, unit*WORLDSCALE, brickMass*WORLDSCALE, p,   false ); //sx, sy, sz, mass, pos) 
-			
+					
 					// LEG3 bottomright
 		            legHeight=level-layoutHeights[gridx+gridw-1][gridy+gridh-1]-topHeight; 
 		            p=new THREE.Vector3(gridx,gridy,0);
@@ -367,63 +372,7 @@ function createPillar()
 				 }
         }
 
-	function createTable( sx, sy, sz, mass, pos, quat, material)
-		{	
-			// scale >> trick to simulate in slow motion
-			pos.multiplyScalar(WORLDSCALE);
-			sx*=WORLDSCALE; sy*=WORLDSCALE;	sz*=WORLDSCALE;
-
-			// Wall
-			var sc=WORLDSCALE;
-			var brickMass = 0.5*sc;
-			var brickLength = 1.2*sc;
-			var brickDepth = 0.6*sc;
-			var brickHeight = brickLength * 0.5*sc;
-			
-			var unit=0.5*sc;
-
-			var group=new THREE.Group();
-			var legy=sy/2-unit/2+pos.y;
-			var p=new THREE.Vector3();
-			
-			p.copy(pos);
-			p.x=p.x-sx/2+unit/2;
-			p.y=legy;
-			p.z=p.z-sz/2+unit/2;
-			createBoxPhys( unit, sy-unit, unit, mass, p );
-            // leg1.castShadow = true;
-			//	leg1.receiveShadow = true;
-
-			
-			p.copy(pos);
-			p.x=p.x+sx/2-unit/2;
-			p.y=legy;
-			p.z=p.z+sz/2-unit/2;
-			createBoxPhys( unit, sy-unit, unit, mass, p );
 	
-			p.copy(pos);
-			p.x=p.x+sx/2-unit/2;
-			p.y=legy;
-			p.z=p.z-sz/2+unit/2;
-			createBoxPhys( unit, sy-unit, unit, mass, p );
-			
-			p.copy(pos);
-			p.x=p.x-sx/2+unit/2;
-			p.y=legy;
-			p.z=p.z+sz/2-unit/2;
-			createBoxPhys( unit, sy-unit, unit, mass, p );
-			
-			p.copy(pos);
-			p.y=pos.y+sy-unit/2;
-            createBoxPhys(  sx, unit, sz, 0.5, p );
-			
-			var objHeight=1*WORLDSCALE;
-			p.copy(pos);
-			p.y=pos.y+sy+objHeight/2.0;
-            createBoxPhys(  sx/2, objHeight, sz/2, 1, p );
-			
-		
-		}
 
 	
    function createPlinth()
@@ -527,8 +476,8 @@ function createPillar()
 			lathe.position.set(0, cy*WORLDSCALE/2, 0);
 			lathe.castShadow = true;
 			lathe.receiveShadow=false;
-			lathe.addEventListener( 'collision', handleCollision );
-			lathe.addEventListener( 'ready', ready );
+			//lathe.addEventListener( 'collision', handleCollision );
+			//lathe.addEventListener( 'ready', ready );
 			
             physiBodies.push(lathe);
             scene_physi.add( lathe );

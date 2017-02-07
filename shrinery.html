@@ -1,0 +1,1334 @@
+<html lang="en">
+    <head>
+        <title>dSeHpRaIrNtE</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                color: #cccccc;
+                font-family:Monospace;
+                font-size:13px;
+                text-align:center;
+
+                background-color: #fff;
+                margin: 0px;
+                overflow: hidden;
+            }
+            #shrines
+             {	position: relative;
+             	width: 100%;
+             	height: 100%;
+             	border:  100px solid white;
+             	
+             }
+
+            #container
+             	{	position: absolute;
+             		
+   					
+             	}
+            #info {
+                position: absolute;
+                bottom: 0px; width: 100%;
+                padding: 5px;
+            }
+            #gui
+            {
+                position: absolute;
+	            width:40px;
+	            height: 100%;
+	            top:100;
+	          //  padding: 10px;
+	            text-align: center;
+            }
+            a {
+
+                color: #a06851;
+            }
+
+		.button {
+			
+		
+			float:left
+			top:200px;
+			margin: 10;
+			 display: inline-block;
+		    background-color: #4CAF50; /* Green */
+		    padding: 16px 16px;
+		    text-align: center;
+		    text-decoration: none;
+		  
+		    font-size: 14px;
+		    -webkit-transition-duration: 0.4s; /* Safari */
+		    transition-duration: 0.4s;
+		    cursor: pointer;
+		    background-color: transparent; 
+    		color: black; 
+   			border: 1px solid rgba(255,255,255,0.2);
+		}
+
+		
+
+		.button:hover {
+
+		 //   background-color: #4CAF50;
+			 border: 1px solid rgba(255,255,255,0.6);
+		    color: rgba(255,255,255,0.6);
+		}
+
+
+
+        </style>
+    </head>
+    <body>
+    <div id="shrines">
+		<div id="info">shrines</div>
+        <div id="container"><br /><br /><br /><br /><br />Loading...</div>
+    	<div id="gui">
+			<input type="button" value="Q" class="button" onClick="toggleQuality();"></input>
+			<input type="button" value="R" class="button" onClick="prepareReset();"></input>
+			
+		</div>
+	</div>   
+
+
+
+	<!--<script type="text/javascript" src="../js/libs/physi.js"></script>-->
+    	<script type="text/javascript" src="lib/three/build/three.min.js"></script>  
+    	<script src="lib/timbre.js"></script>
+		<script src="lib/jsmad.js"></script>
+		<script src="lib/mp3_decode.js"></script>
+
+		<script>
+		//  T("sin", {freq:880, mul:0.5}).play();
+		</script>
+	
+    	<script type="text/javascript" src="lib/three/examples/js/controls/OrbitControls.js"></script>
+    	<script type="text/javascript" src="lib/three/examples/js/libs/stats.min.js"></script>
+	 	<script type="text/javascript" src="lib/physi/physi.js"></script>
+		
+		
+		
+		<!--<script src='lib/three/examples/js/libs/dat.gui.min.js'></script>-->
+
+	    <script src="lib/three/examples/js/Detector.js"></script>
+		<script src="objectCreators.js"></script>
+		
+	   <!-- <script type="text/javascript" src="https://l2.io/ip.js?var=userip"></script>-->
+	 
+		<script src="objectCreators.js"></script>
+
+        <script type="text/javascript">
+        'use strict';
+	
+        Physijs.scripts.worker = 'lib/physi/physijs_worker.js';
+        Physijs.scripts.ammo = 'examples/js/ammo.js'; // doesnt work with new ammo.js from githug (collisions) // path is relative to the worker
+		
+		// Detects webgl
+		if ( ! Detector.webgl ) {
+		    Detector.addGetWebGLMessage();
+		    document.getElementById( 'container' ).innerHTML = "";
+		}
+
+		
+		var SIMULATE=false;   
+		var ACTIVATED=false; // initially the scene is paused and needs to be clicked once to start
+        var WORLDSCALE=40; //40
+        var LOWQUALITY=false;
+        var ANTIALIAS=true;
+        var ENABLESHADOWS=false;
+        var COLLAPSETIME=26;		//time to restart the scence in seconds
+        var SOUNDINITIALIZED=true; 
+        
+        var countdown=COLLAPSETIME;
+        
+        var frm=0;
+
+        var timestep=1/1000;
+        var id;
+		// Graphics variables
+		var container, stats, physics_stats;
+		var camera, controls, scene, scene_physi, renderer,skybox;
+		var textureLoader;
+		var tGlobalLightInt=1; //target light intensity, for animating light intensity
+		var cGlobalLightInt=1;
+
+		var clock = new THREE.Clock();
+		var resetting=false;
+		var resetInterval;
+		// Physics variables    // Physi.js
+		var physiBoxMaterial; // the standard material for most of the physical bodies
+	    var physiBodies = []; // all the physijs obj in the scene for the simulation
+	    var layoutTables=[];
+	    var removeableBodies=[];
+		
+        var initWorld, render, _boxes = [], spawnBox, loader,
+		render_stats, physics_stats, scene, ground_material, physi_ground, light;
+		var light1,light2,light3;
+		var light1PulseAng=0,light2PulseAng=0,light3PulseAng=0;
+		var screenLight;
+		
+
+
+		var skyBoxMaterial;
+		var cubeMaterial;
+		var cubeMaterialDull;
+ 
+        var screenObj;
+
+        // TEXTURES - all textures are global for easier load management
+        var tex_stoneStaple;
+        var tex_reflectionCube;
+        var tex_grid;
+        
+
+        // for rendering the texture into the screen
+        var canvas, context, tex_canvas;
+
+        // SOUND ------ 
+          var audio1, osc1, osc1_1, osc2,osc2_1,osc3, osc3_1;
+        var snd_osc1_1,snd_osc2_1,snd_osc3_1, audioOsc1_1,audioOsc2_1,audioOsc3_1 , listener;
+		var snd_osc1_2,snd_osc2_2,snd_osc3_2, audioOsc1_2,audioOsc2_2,audioOsc3_2;
+		var snd_Frosc1_1,snd_Frosc2_1,snd_Frosc3_1, audioFrOsc1_1,audioFrOsc2_1,audioFrOsc3_1;
+		var snd_Frosc1_2,snd_Frosc2_2,snd_Frosc3_2, audioFrOsc1_2,audioFrOsc2_2,audioFrOsc3_2;
+		var bgloop, audioBgloop, freeze, audioFreezeloop, rumba, audioRumba, rainrumba, audioRainrumba;
+
+
+        // 10x10 grid to keep track of height levels 
+        var layoutHeights=[
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+        ];
+		
+
+function reset()
+    {layoutHeights=[
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],];
+      //     
+      for (var i=0;i<removeableBodies.length;i++)
+      {
+      	scene_physi.remove(removeableBodies[i]);
+      	renderer.dispose( physiBodies[i] );
+      	console.log("remobv");
+      }
+      
+      removeableBodies = [];
+
+      countdown=COLLAPSETIME;
+	  	light1PulseAng=0;
+		light2PulseAng=0;
+		light3PulseAng=0;
+
+
+
+      createRemoveableBodies();
+      
+/*      
+      scene_physi.children.forEach(function(obj){
+   		 console.log("remobv"+obj);
+   		 scene_physi.remove(obj);
+		 renderer.deallocateObject( obj );
+
+		});
+*/
+     //createObjects();
+      /*
+      manageLoading();
+      initWorld();
+      */
+      //initWorld();
+
+      setTimeout(function() {resetInterval=setInterval(afterResetTO,25)}, 200);
+      setTimeout(function() {SIMULATE=true}, 5000);
+
+    }
+
+
+function initSound()
+  {	
+
+
+
+	camera.add( listener );
+	audioFreezeloop.setVolume(0);
+	audioBgloop.setVolume(0);
+	audioRainrumba.setVolume(0);
+	audioRumba.setVolume(0);
+	audioOsc1_1.stop();
+	audioOsc1_2.stop();
+	audioOsc2_1.stop();
+	audioOsc2_2.stop();
+	audioOsc3_1.stop();
+	audioOsc3_2.stop();
+	audioFrOsc1_1.stop();
+	audioFrOsc1_2.stop();
+	audioFrOsc2_1.stop();
+	audioFrOsc2_2.stop();
+	audioFrOsc3_1.stop();
+	audioFrOsc3_2.stop();
+	
+	audioFrOsc1_1.setVolume(0);
+	 audioFrOsc2_1.setVolume(0);
+	 audioFrOsc3_1.setVolume(0);
+
+	 audioFrOsc1_2.setVolume(0);
+	 audioFrOsc2_2.setVolume(0);
+	 audioFrOsc3_2.setVolume(0);
+	 SOUNDINITIALIZED=true;
+  }
+
+
+
+function resetLayoutTables()
+  {
+  	for(var i=0;i<layoutTables.length;i++)
+  	{
+  		var y=600;
+  		resetObject(layoutTables[i].leg1,0,y,0);
+  		resetObject(layoutTables[i].leg2,0,y,0);
+  		resetObject(layoutTables[i].leg3,0,y,0);
+  		resetObject(layoutTables[i].leg4,0,y,0);
+  		resetObject(layoutTables[i].top,0,y+100,0);
+
+  	}
+  }
+
+function resetObject(obj,sx,sy,sz,mass,pos)
+  {
+  	obj.position.y=500;
+  	obj.__dirtyPosition=true;
+  	obj.rotation.set(0,0,0);
+  	obj.__dirtyRotation=true;
+  	obj.setLinearVelocity(new THREE.Vector3( 0, 0, 0 ));
+  	obj.setAngularVelocity(new THREE.Vector3( 0, 0, 0 ));
+  
+  }
+
+function prepareReset()
+	{	SIMULATE=false;
+		tGlobalLightInt=-0.5;
+		resetting=true;
+		clearInterval(resetInterval);
+		resetInterval=setInterval(prepareResetTO,25);
+		
+
+	}
+function prepareResetTO()
+	{	//scene_physi.background.transparent=true;
+		//scene_physi.background.opacity=0
+		//skybox.material.opacity=0;
+		skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
+		;
+		if (light1.intensity<=0) 
+			{clearInterval(resetInterval)
+			 reset();
+			}
+	}
+function afterResetTO()
+   {skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
+   
+   // console.log("after reset");
+   // clock.stop();clock.start(); // resets the elapsed time to 0
+   	tGlobalLightInt=1;
+   	if (light1.intensity>=0.9) 
+			{clearInterval(resetInterval)
+			 skyBoxMaterial.uniforms.opacity= { type: "f", value: 1  };
+			 resetting=false;
+			}
+   	
+
+   }
+		
+		function initCamera()
+		 { // CAMERA
+			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2*WORLDSCALE, 180*WORLDSCALE );
+			camera.position.x = 10*WORLDSCALE;
+			camera.position.y = 10*WORLDSCALE;
+			camera.position.z =  18*WORLDSCALE;
+			//camera.lookAt(0,0,0);
+			controls = new THREE.OrbitControls( camera );
+			controls.autoRotate = true;
+			controls.autoRotateSpeed = -0.1;
+			controls.userPan=false;
+			
+			controls.userPanSpeed = 0.001;
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.06;
+			controls.maxPolarAngle = 1.7; // stay above ground 
+			controls.target.y = 6*WORLDSCALE;
+			controls.minDistance = 10*WORLDSCALE;
+			controls.maxDistance = 25*WORLDSCALE;
+			controls.momentumScalingFactor=0.00001;
+
+		 }
+
+		 function initRenderer()
+		 {	
+			 var pixelratio = window.devicePixelRatio || 1;
+			 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
+				{
+ 					ENABLESHADOWS=false;
+ 					ANTIALIAS=false;
+				}
+			if (pixelratio>1) ANTIALIAS=false;
+			renderer = new THREE.WebGLRenderer({antialias:ANTIALIAS});
+			renderer.setClearColor( 0x000);
+			//renderer.gammaInput = true;
+			//renderer.gammaOutput = true;
+			
+			console.log("ratio="+pixelratio);
+			renderer.setPixelRatio(pixelratio);
+			onWindowResize();  // set rendersize, 
+
+
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type=THREE.PCFSoftShadowMap; //THREE.BasicShadowMap, THREE.PCFShadowMap (default), THREE.PCFSoftShadowMap
+			renderer.shadowMapSoft=true;
+		 }
+
+		 function initLights()
+		 {
+			var ambientLight = new THREE.AmbientLight( 0x111111 );
+			//scene_physi.add( ambientLight );
+			
+
+				// LIGHTS
+				var mapsize=256;
+	            var d = 10*WORLDSCALE;
+	            var intensity=0;
+	            var dist=30*WORLDSCALE;
+	            var decay=8;
+            	
+				var sphere = new THREE.SphereGeometry( 0.1*WORLDSCALE, 12, 8 );
+				
+
+				var col=0xffbfa3;//ffd0bc
+				light1 = new THREE.PointLight( col, intensity, dist,decay ); //color, intensity, distance, decay (default is 1, 2 is phyical correct)
+				var obj1= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+				light1.add(obj1);
+				light1.obj=obj1;
+				light1.castShadow=ENABLESHADOWS;
+				light1.shadow.mapSize.x = mapsize; light1.shadow.mapSize.y = mapsize;
+                light1.shadow.camera.left = -d; light1.shadow.camera.right = d;	light1.shadow.camera.top = d;	light1.shadow.camera.bottom = -d;
+    		    light1.shadow.camera.near = 2;  light1.shadow.camera.far = 200*WORLDSCALE;
+				scene_physi.add( light1 );
+
+				col=0xffe8bc;
+				light2 = new THREE.PointLight( col, intensity, dist,decay );
+				var obj2= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+				light2.add(obj2);
+				light2.obj=obj2;
+				light2.castShadow=ENABLESHADOWS;
+				light2.shadow.mapSize.x = mapsize; light2.shadow.mapSize.y = mapsize;
+                light2.shadow.camera.left = -d; light2.shadow.camera.right = d;	light2.shadow.camera.top = d;	light2.shadow.camera.bottom = -d;
+    		    light2.shadow.camera.near = 2;  light2.shadow.camera.far = 100*WORLDSCALE;
+				scene_physi.add( light2 );
+
+				col=0x7b8fff2;//ffbc5e;
+				light3 = new THREE.PointLight( col,intensity,dist,decay );
+				var obj3= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+				light3.add(obj3);
+				light3.obj=obj3;
+				light3.castShadow=ENABLESHADOWS;
+				light3.shadow.mapSize.x = mapsize; light3.shadow.mapSize.y = mapsize;
+                light3.shadow.camera.left = -d; light3.shadow.camera.right = d;	light3.shadow.camera.top = d;	light3.shadow.camera.bottom = -d;
+    		    light3.shadow.camera.near = 2;  light3.shadow.camera.far = 100*WORLDSCALE;
+				scene_physi.add( light3 );
+				/*
+				var width = 10*WORLDSCALE;
+				var height = 10*WORLDSCALE;
+				rectLight = new THREE.RectAreaLight( 0xff0000, undefined,  width, height );
+				rectLight.matrixAutoUpdate = true;
+				rectLight.intensity = 70.0;
+				rectLight.position.set( 0, 5, 0 );
+			    rectLightHelper = new THREE.RectAreaLightHelper( rectLight );
+				rectLight.add( rectLightHelper );
+		
+				scene_physi.add(rectLight)
+				*/
+		}
+
+		function manageLoading()
+			{	var loader = new THREE.TextureLoader();
+				//tex_stoneStaple = 	loader.load( "img/staple.jpg" );
+				
+				
+
+				tex_grid =			loader.load( "img/grid.png" );
+
+				var skypath = "img/sky54/";
+				var skyformat = '.jpg';
+				var skyurls = [
+						skypath + 'px' + skyformat, skypath + 'nx' + skyformat,
+						skypath + 'py' + skyformat, skypath + 'ny' + skyformat,
+						skypath + 'pz' + skyformat, skypath + 'nz' + skyformat
+					];
+				tex_reflectionCube = new THREE.CubeTextureLoader().load( skyurls );
+
+				// AUDIO INIT -----------------------------------------------------------------------------------
+
+				listener = new THREE.AudioListener();
+				audioBgloop = new THREE.Audio( listener );
+				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.ogg', function( buffer ) {
+					audioBgloop.setBuffer( buffer );
+					audioBgloop.setLoop(true);
+					audioBgloop.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioBgloop.play();
+				});
+
+						audioFreezeloop = new THREE.Audio( listener );
+				freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.ogg', function( buffer ) {
+					audioFreezeloop.setBuffer( buffer );
+					audioFreezeloop.setLoop(true);
+					audioFreezeloop.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioFreezeloop.play();
+				});
+			
+				audioRumba = new THREE.Audio( listener );
+				rumba = new THREE.AudioLoader().load( 'snd/rumba.ogg', function( buffer ) {
+					audioRumba.setBuffer( buffer );
+					audioRumba.setLoop(true);
+					audioRumba.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioRumba.play();
+				});
+
+				audioRainrumba = new THREE.Audio( listener );
+				rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.ogg', function( buffer ) {
+					audioRainrumba.setBuffer( buffer );
+					audioRainrumba.setLoop(true);
+					audioRainrumba.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioRainrumba.play();
+				});
+
+				audioOsc1_1 = new THREE.Audio( listener );
+				snd_osc1_1 = new THREE.AudioLoader().load( 'snd/sph_3_1.wav', function( buffer ) {
+					audioOsc1_1.setBuffer( buffer );
+					audioOsc1_1.setLoop(true);
+					audioOsc1_1.setVolume(0.1);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioOsc1_1.play();
+				});
+				//listener = new THREE.AudioListener();
+				audioOsc2_1 = new THREE.Audio( listener );
+				snd_osc2_1 = new THREE.AudioLoader().load( 'snd/sph_2_1.wav', function( buffer ) {
+					audioOsc2_1.setBuffer( buffer );
+					audioOsc2_1.setLoop(true);
+					audioOsc2_1.setVolume(0);
+
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioOsc2_1.play();
+				});
+				
+				//listener = new THREE.AudioListener();
+				audioOsc3_1 = new THREE.Audio( listener );
+				snd_osc3_1 = new THREE.AudioLoader().load( 'snd/sph_1_1.wav', function( buffer ) {
+					audioOsc3_1.setBuffer( buffer );
+					audioOsc3_1.setLoop(true);
+					audioOsc3_1.setVolume(0);
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioOsc3_1.play();
+				});
+
+				audioOsc1_2 = new THREE.Audio( listener );
+				snd_osc1_2 = new THREE.AudioLoader().load( 'snd/sph_3_2.wav', function( buffer ) {
+					audioOsc1_2.setBuffer( buffer );
+					audioOsc1_2.setLoop(true);
+					audioOsc1_2.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioOsc1_2.play();
+				});
+				//listener = new THREE.AudioListener();
+				audioOsc2_2 = new THREE.Audio( listener );
+				snd_osc2_2 = new THREE.AudioLoader().load( 'snd/sph_2_2.wav', function( buffer ) {
+					audioOsc2_2.setBuffer( buffer );
+					audioOsc2_2.setLoop(true);
+					audioOsc2_2.setVolume(0);
+
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioOsc2_2.play();
+				});
+				
+				//listener = new THREE.AudioListener();
+				audioOsc3_2 = new THREE.Audio( listener );
+				snd_osc3_2 = new THREE.AudioLoader().load( 'snd/sph_1_2.wav', function( buffer ) {
+					audioOsc3_2.setBuffer( buffer );
+					audioOsc3_2.setLoop(true);
+					audioOsc3_2.setVolume(0);
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioOsc3_2.play();
+				});
+
+				audioFrOsc1_1 = new THREE.Audio( listener );
+				snd_Frosc1_1 = new THREE.AudioLoader().load( 'snd/sph_fr_3_1.wav', function( buffer ) {
+					audioFrOsc1_1.setBuffer( buffer );
+					audioFrOsc1_1.setLoop(true);
+					audioFrOsc1_1.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioFrOsc1_1.play();
+				});
+				//listener = new THREE.AudioListener();
+				audioFrOsc2_1 = new THREE.Audio( listener );
+				snd_Frosc2_1 = new THREE.AudioLoader().load( 'snd/sph_fr_2_1.wav', function( buffer ) {
+					audioFrOsc2_1.setBuffer( buffer );
+					audioFrOsc2_1.setLoop(true);
+					audioFrOsc2_1.setVolume(0);
+
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioFrOsc2_1.play();
+				});
+				
+				//listener = new THREE.AudioListener();
+				audioFrOsc3_1 = new THREE.Audio( listener );
+				snd_Frosc3_1 = new THREE.AudioLoader().load( 'snd/sph_fr_1_1.wav', function( buffer ) {
+					audioFrOsc3_1.setBuffer( buffer );
+					audioFrOsc3_1.setLoop(true);
+					audioFrOsc3_1.setVolume(0);
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioFrOsc3_1.play();
+				});
+
+				audioFrOsc1_2 = new THREE.Audio( listener );
+				snd_Frosc1_2 = new THREE.AudioLoader().load( 'snd/sph_fr_3_2.wav', function( buffer ) {
+					audioFrOsc1_2.setBuffer( buffer );
+					audioFrOsc1_2.setLoop(true);
+					audioFrOsc1_2.setVolume(0);
+					//audioOsc1.setRefDistanc(0.1);
+					//audioOsc1.setMaxDistance(1000);
+					//audioOsc1.setRolloffFactor(1);
+					audioFrOsc1_2.play();
+				});
+				//listener = new THREE.AudioListener();
+				audioFrOsc2_2 = new THREE.Audio( listener );
+				snd_Frosc2_2 = new THREE.AudioLoader().load( 'snd/sph_fr_2_2.wav', function( buffer ) {
+					audioFrOsc2_2.setBuffer( buffer );
+					audioFrOsc2_2.setLoop(true);
+					audioFrOsc2_2.setVolume(0);
+
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioFrOsc2_2.play();
+				});
+				
+				//listener = new THREE.AudioListener();
+				audioFrOsc3_2 = new THREE.Audio( listener );
+				snd_Frosc3_2 = new THREE.AudioLoader().load( 'snd/sph_fr_1_2.wav', function( buffer ) {
+					audioFrOsc3_2.setBuffer( buffer );
+					audioFrOsc3_2.setLoop(true);
+					audioFrOsc3_2.setVolume(0);
+			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+					audioFrOsc3_2.play();
+				});
+				
+
+
+
+
+
+
+				//---------------------------------------------------------------------------
+				
+				
+
+				THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+
+				//console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+
+				};
+
+				THREE.DefaultLoadingManager.onLoad = function ( ) {
+
+					console.log( 'Loading Complete!');
+					initWorld();
+					
+
+				};
+
+
+				THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+
+				//	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+
+				};
+
+				THREE.DefaultLoadingManager.onError = function ( url ) {
+
+					console.log( 'There was an error loading ' + url );
+
+				}
+				
+			}
+
+		function updateTexCanvas()
+		  {	
+		  	// canvas w 512 >> use only 512*9/16 
+		  	var asp=9/16;
+		  //	context.font = '30pt Arial';
+		    context.fillStyle = 'white';
+		  //  context.fillRect(0, 0, canvas.width*asp, canvas.height);
+		 //   context.fillStyle = 'black';
+		  //  context.fillRect(10, 10, canvas.width*asp - 20, (canvas.height - 20)*( 1 -Math.min(1,countdown/COLLAPSETIME))  );
+		    var img = new Image();
+			
+			img.onload = function() {
+    			context.drawImage(img, 0, 0, canvas.width*asp , canvas.height);
+				}
+			img.src = 'img/staple.jpg';
+		  //  context.fillStyle = 'black';
+		 //   context.textAlign = "center";
+		  //  context.textBaseline = "middle";
+		  //  context.fillText( Math.round(countdown), canvas.width*asp / 2, canvas.height / 2);
+
+		  	var h= Math.min(1,countdown/COLLAPSETIME)*canvas.height;
+		    context.fillRect(0,canvas.height-h, canvas.width*asp - 20, h)  ;
+		    tex_canvas.repeat.set(asp,1);
+		    tex_canvas.needsUpdate = true;
+		  }
+
+
+
+		// MAIN INIT  
+		function initWorld() {
+			
+			container = document.getElementById( 'container' );
+			canvas=document.createElement("canvas");
+			canvas.width=512;
+			canvas.height=512;
+			context=canvas.getContext("2d");
+		
+   			tex_canvas=new THREE.Texture(canvas, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+   			tex_canvas.repeatS
+   			tex_canvas.needsUpdate=true;
+   		//	tex_canvas.minFilter=THREE.NearestMipMapLinearFilter;
+
+			if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
+				{
+ 					ENABLESHADOWS=false;
+ 					ANTIALIAS=false;
+				}
+			
+           	initCamera();
+           	initRenderer();
+           	initSound();
+            //SCENE Physi
+            scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/120 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
+            scene_physi.setGravity(new THREE.Vector3( 0, -10, 0 ));
+            scene_physi.addEventListener(
+                'update',
+                function() {
+					//var deltaTime = clock.getDelta();
+                    
+						
+					//	if (SIMULATE) scene_physi.simulate(timestep, 0.5 ); //timestep, maxsteps
+                    physics_stats.update();
+				   
+                }
+            );
+
+            
+            initLights();
+
+
+			// REFLECTION -------------------------------------------------------
+			tex_reflectionCube.format = THREE.RGBFormat;
+			tex_reflectionCube.minFilter = THREE.LinearFilter;
+				
+			cubeMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, envMap: tex_reflectionCube, combine: THREE.MixOperation, reflectivity: 0.6 } );
+			cubeMaterialDull= new THREE.MeshPhongMaterial( { color: 0xffffff, envMap: tex_reflectionCube,  combine: THREE.MixOperation,reflectivity: 0.1 } );
+			
+			// skybox-------------------------------------------------------
+			var skyboxShader = THREE.ShaderLib['cube'];
+			skyBoxMaterial = new THREE.ShaderMaterial( {
+			    fragmentShader: skyboxShader.fragmentShader,
+			    vertexShader: skyboxShader.vertexShader,
+			    uniforms: {
+			        "tCube": { type: "t", value: tex_reflectionCube },
+			        "tFlip": { type: "f", value: -1 },
+			        "opacity": {value:1.0 }
+			    },
+			    
+			    depthWrite: true,
+			    transparent:true,
+			    side: THREE.BackSide
+			   
+			});
+		
+			//skyBoxMaterial.color=new THREE.Color( 0x000 );;
+			//skyBoxMaterial.uniforms.color= { type: "c", value: { r:1, g:1, b:1 } };
+			//skyBoxMaterial.uniforms.opacity= { type: "f", value: 0  };
+			skybox = new THREE.Mesh(
+			    new THREE.CubeGeometry(60*WORLDSCALE,60*WORLDSCALE,60*WORLDSCALE),
+			    skyBoxMaterial
+			);
+
+			scene_physi.add(skybox);
+
+
+			// create ground plane ------------------------------------------------------
+			
+			tex_grid.wrapS = THREE.RepeatWrapping;
+			tex_grid.wrapT = THREE.RepeatWrapping;
+			tex_grid.repeat.set( 40, 40 );
+
+            ground_material = Physijs.createMaterial(
+                new THREE.MeshPhongMaterial({color:0xffffff,map:tex_grid}),
+                .8, // high friction
+                .3  // low restitution
+                );
+		
+            physi_ground = new Physijs.BoxMesh(
+                new THREE.BoxBufferGeometry(50*WORLDSCALE, 1, 50*WORLDSCALE),
+                ground_material,
+                0 // mass
+                );
+           // physi_ground.visible=false;
+            physi_ground.position.set(0, -0.5,0);// y=-0.55
+            physi_ground.receiveShadow = false;
+            scene_physi.add( physi_ground );
+			
+			//----------------
+			createStaticBodies();
+			createRemoveableBodies();
+
+
+			window.addEventListener( 'resize', onWindowResize, false );
+            id=requestAnimationFrame( render );
+	        scene_physi.simulate();
+		    
+            
+            // STATS
+            container.innerHTML = "";
+			container.appendChild( renderer.domElement );
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			container.appendChild( stats.domElement );
+
+			physics_stats = new Stats();
+			physics_stats.domElement.style.position = 'absolute';
+			physics_stats.domElement.style.top = '50px';
+			physics_stats.domElement.style.zIndex = 100;
+			container.appendChild( physics_stats.domElement );
+
+
+			initInput();
+
+			
+			
+		}
+
+
+/// PHYSICALS 
+	
+
+	
+
+
+    function handleCollision( collided_with, linearVelocity, angularVelocity ) 
+		{ 
+			   this.lastCollision=clock.getElapsedTime();
+			    
+				if (linearVelocity.lengthSq()>1.0 )
+				 {//this.material.color.setHex(0xff0000);
+				 // if (this._hasCollided) this.material.color.setHex(0xff00ff);
+				  this.lastCollision=clock.getElapsedTime();
+ 
+				 }
+			//	 else this.material.color.setHex(0xffffff);
+				 
+				 /*
+				switch ( ++this.collisions ) {
+                   
+                   case 0:
+						this.material.color.setHex(0xffffff);
+                        console.log("sdfsdf");
+						break;
+					
+					case 1:
+						this.material.color.setHex(0xff0000);
+                        console.log("sdfsdf");
+						break;
+					
+					case 2:
+						this.material.color.setHex(0x00ff00);
+						break;
+					
+					case 3:
+						this.material.color.setHex(0x0000ff);
+						break;
+					
+					case 4:
+						this.material.color.setHex(0x99bb55);
+						break;
+					
+					case 5:
+						this.material.color.setHex(0x88cc55);
+						break;
+					
+					case 6:
+						this.material.color.setHex(0x77dd55);
+						break;
+				}
+				*/
+			}
+
+    
+
+
+	
+	function updateLayoutHeights(x,y ,w,h, value) // all integers 0...9
+        {   
+            for (var ix=x;ix<w+x;ix++)
+                {
+                    for (var iy=y;iy<h+y;iy++)
+                        {
+                         layoutHeights[ix][iy]= value;
+                        // console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
+                        }
+                }
+            
+        }
+     function checkLayoutHeightViolation(x,y ,w,h, value) // all integers 0...9
+        {   var violation=false;
+        	
+            for (var ix=x;ix<w+x;ix++)
+                {
+                    for (var iy=y;iy<h+y;iy++)
+                        {
+                         if (layoutHeights[ix][iy]>value) violation=true;
+                         //console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
+                        }
+                }
+
+         return violation   
+        }
+
+   function checkLayoutMaxHeight(x,y ,w,h, value) // all integers 0...9
+        {   var violation=false;
+        	var maxValue=0;
+            for (var ix=x;ix<w+x;ix++)
+                {
+                    for (var iy=y;iy<h+y;iy++)
+                        {maxValue=Math.max(layoutHeights[ix][iy],maxValue)
+                         if (layoutHeights[ix][iy]>value) violation=true;
+                        // console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
+                        }
+                }
+
+         return maxValue   
+        }
+
+	function ready()
+		{//console.log("ready");
+		}
+
+
+  
+	
+	function createStaticBodies() 
+		{	
+			physiBoxMaterial= Physijs.createMaterial(
+					new THREE.MeshPhongMaterial(), //cubeMaterialDull,//
+					.6, // medium friction
+					.3 // low restitution
+				);
+
+			//createPillar();
+            createPlinth();
+            /*
+            createFetish(5,3,4,5);
+            createFetish(6,4,2,8);
+            createFetish(4,5,2,16);
+            createFetish(2,3,2,10);
+            */
+            createScreen(9/4,16/4,6);
+            
+            //createFetish(6,3,4,12);
+         //   createLayoutTable(0,2, 4,3, 4);//(gridx,gridy, gridw,gridh, level); 
+		//	createLayoutTable(3,4, 3,5, 5);//(gridx,gridy, gridw,gridh, level); 
+		//	createLayoutTable(2,3, 2,2, 6);//(gridx,gridy, gridw,gridh, level); 
+			
+		//	 createAura();
+		}
+	function createRemoveableBodies()
+	    {
+	    	for (var i=3;i<30;i++)
+			 {	 var x=Math.round(Math.random()*9);
+				 var y=Math.round(Math.random()*9);
+				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
+				 var h=Math.min(4,Math.max(1,Math.round(Math.random()*(10-y))));
+				 createLayoutTable(x,y, w,h, i*0.6);
+			 }
+	    }
+		
+		function initInput() {
+
+		    window.addEventListener( 'keydown', function( event ) {
+
+			    switch ( event.keyCode ) {
+				    // Q
+				    case 81:
+				    //resetLayoutTables();
+ 					prepareReset();
+					//reset();
+				    break;
+
+				    case 77:
+				    	toggleShadows();
+				    break;
+
+				    // A
+				    case 65:
+						if (tGlobalLightInt==1) tGlobalLightInt=-1;
+						else tGlobalLightInt=1;
+						cubeMaterial.color.setHex(0x000);
+
+
+					break;
+
+					case 83: //S
+					  SIMULATE=!SIMULATE;
+					  if (SIMULATE) scene_physi.onSimulationResume();
+					  	//console.log("dad"+SIMULATE);
+				    break;
+
+				    case 68://D
+				      timestep=1/5.0;
+					
+				    break;
+			    }
+
+		    }, false );
+
+		    window.addEventListener( 'keyup', function( event ) {
+
+			  
+
+		    }, false );
+
+		    window.addEventListener( 'mousedown', function( event ) {
+		    	if(!resetting) freezeSimulation(true);
+		    }, false );
+		    window.addEventListener( 'mouseup', function( event ) {
+		    	if(!resetting) freezeSimulation(false);
+		    }, false );
+
+		}
+
+		function onWindowResize() {
+			console.log("resize");
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+		//	renderer.setSize( window.innerWidth, window.innerHeight );
+			// Resize renderTargets
+				//ssaoPass.uniforms[ 'size' ].value.set( width, height );
+				var width=window.innerWidth;
+				var height=window.innerHeight;
+				var pixelRatio = renderer.getPixelRatio();
+				var newWidth  = Math.floor( width / pixelRatio ) || 1;
+				var newHeight = Math.floor( height / pixelRatio ) || 1;
+				//depthRenderTarget.setSize( newWidth, newHeight );
+				//effectComposer.setSize( newWidth, newHeight );
+				renderer.setSize( width-200, height-200 );
+
+
+		}
+
+		function kick()
+		 {	//console.log("kick");
+				for ( var i = 0, il = physiBodies.length; i < il; i++ ) 
+						{
+						var pobj = physiBodies[i];
+					//
+					//	obj.applyCentralImpulse(new THREE.Vector3(1000,-1000,0));
+						pobj.applyCentralImpulse(new THREE.Vector3(10000,1000,0));
+					
+						}
+			 
+		 }
+
+//=================================================================================================================================7=============
+
+	function render() 
+        {	var delta=clock.getDelta();
+          // console.log(physiBodies.length);
+          updateTexCanvas();
+          frm++;
+          
+            if (SIMULATE && frm%2==0) 
+            	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
+           		 countdown-=delta;
+           		}
+            if (countdown<=0 && !resetting) 
+            	{
+            	prepareReset();
+            	console.log("prepare reset");
+            	}
+
+         //   	console.log(countdown +"  "+resetting);
+
+            // color if in collision
+            /*
+			for ( var j = 0; j<physiBodies.length; j++ ) 
+				{ 
+                    var pobj = physiBodies[j];
+                    var t=clock.getElapsedTime();
+                    
+                    if ((t-pobj.lastCollision) > 0.1)
+                        {
+                            pobj.material.color.setHex(0xffffff);
+                        }
+                    else
+                        {
+                            pobj.material.color.setHex(0xff00ff);
+                        }
+				}
+            */
+
+          //  rectLightHelper.update(); // required
+
+        	
+			controls.update(delta );
+			animateLights(delta);
+			/*
+            skybox.position.x=camera.position.x;
+		    skybox.position.y=camera.position.y;
+		    skybox.position.z=camera.position.z;
+		    */
+			stats.update();
+			
+            renderer.render( scene_physi, camera );
+            
+		  
+		   
+
+
+		   requestAnimationFrame( render );
+			
+		}
+
+//==============================================================================================================================================
+   
+    function toggleQuality()
+      {
+		ENABLESHADOWS=!ENABLESHADOWS;
+		light1.castShadow=false;
+		light2.castShadow=ENABLESHADOWS;
+      	light3.castShadow=ENABLESHADOWS;//ENABLESHADOWS;
+      	screenLight.castShadow=false;
+      	// not possible at runtim
+      	//ANTIALIAS=ENABLESHADOWS;
+      	//scene_physi.antialias=ENABLESHADOWS;
+      }
+
+   
+
+	function animateLights(delta)
+        {   
+            var t=clock.elapsedTime;
+            
+            var r=9*WORLDSCALE;
+            var yos=6*WORLDSCALE;
+            var yr=5*WORLDSCALE;
+
+            var os=Math.PI*2/3;
+           // light1.intensity=light2.intensity=light3.intensity=0.6;
+
+            var l1y=Math.sin( t * 0.5  );
+            var l2y=Math.sin( t * 0.5 +os );
+            var l3y=Math.sin( t * 0.5 +2*os );
+
+            if (SIMULATE)
+            {
+            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
+            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
+            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
+            }
+            
+            var l1Int= (((Math.sin(light1PulseAng)+1)/2)+0.1 ) ;
+
+            
+            var l2Int=(((Math.sin(light2PulseAng)+1)/2+0.1));
+
+            
+            var l3Int=(((Math.sin(light3PulseAng)+1)/2+0.1));
+
+
+
+            light1.position.x = Math.sin( t * 0.3  ) * r;
+            light1.position.y = l1y* yr+yos;//Math.cos( t * 0.05 ) * r;
+            light1.position.z = Math.cos( t * 0.3 ) * r;
+
+            light2.position.x = Math.sin( t * 0.3 +os) * r;
+            light2.position.y = l2y * yr+yos;
+            light2.position.z = Math.cos( t * 0.3 +os) * r;
+
+           // light3.position.x = Math.sin( 1 * 0.03 +2*os) * r;
+            light3.position.y = l3y * yr+yos;
+           // light3.position.z = Math.cos( 1 * 0.03 +2*os) * r;
+
+            // constrain light to camera movement
+            var l3x=camera.position.x*0.3  +Math.sin( t * 0.3 +2*os) * 0.5*WORLDSCALE;
+            var l3z=camera.position.z*0.3  +Math.cos( t * 0.1 ) * 0.5*WORLDSCALE;
+            light3.position.x+=(l3x-light3.position.x)/5.0; 
+            light3.position.z+=(l3z-light3.position.z)/5.0;
+
+            cGlobalLightInt+=(tGlobalLightInt-cGlobalLightInt)/60;
+            var intMult=1.4;
+            if (!ACTIVATED) intMult=0.1;
+
+            light1.intensity=cGlobalLightInt*l1Int*intMult;
+            light2.intensity=cGlobalLightInt*l2Int*intMult;
+            light3.intensity=cGlobalLightInt*l3Int*intMult;
+            
+            light1.obj.material.opacity=(cGlobalLightInt*l1Int);
+            light2.obj.material.opacity=(cGlobalLightInt*l2Int);
+            light3.obj.material.opacity=(cGlobalLightInt*l3Int);
+
+            var h=0;
+            screenLight.intensity=  (countdown/COLLAPSETIME)*cGlobalLightInt;//Math.sin(t*0.025)/2+0.5;
+           // screenLight.color.setHSL(h,0,screenLight.intensity);
+	        screenObj.material.color.setHSL(h,0,cGlobalLightInt);
+            /*
+            if ( Math.random()<0.2)
+            	{	
+	            screenLight.intensity=Math.random()*1;
+	            var h=Math.random();
+	            screenLight.color.setHSL(h,1,screenLight.intensity);
+	            screenObj.material.color.setHSL(h,1,screenLight.intensity);
+	            screenObj.material.map=tex_screen[Math.round(Math.random()*2)];
+           		}
+           		*/
+
+        
+           	
+           	var l1Dist= camera.position.distanceTo(light1.position)/WORLDSCALE /10;  //.distanceToSquared 
+           	var l2Dist= camera.position.distanceTo(light2.position)/WORLDSCALE/10;  //.distanceToSquared 
+	        
+           	// SOUND _-----------------------------------------------
+
+
+           	if (ACTIVATED)
+           	{
+			if (!SIMULATE)
+				{
+
+				 audioFrOsc1_1.setVolume(1/l1Dist	*l1Int		*cGlobalLightInt *0.3);
+				 audioFrOsc2_1.setVolume(1/l2Dist	*l2Int		*cGlobalLightInt*0.3);
+				 audioFrOsc3_1.setVolume(l3Int		*cGlobalLightInt*0.3);
+
+				 audioFrOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*cGlobalLightInt));
+				 audioFrOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*cGlobalLightInt));
+				 audioFrOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*cGlobalLightInt));
+				 }
+			else 
+				{
+
+				 audioOsc1_1.setVolume(1/l1Dist	*l1Int		*cGlobalLightInt *0.3);
+				 audioOsc2_1.setVolume(1/l2Dist	*l2Int		*cGlobalLightInt*0.3);
+				 audioOsc3_1.setVolume(l3Int		*cGlobalLightInt*0.3);
+
+				 audioOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*cGlobalLightInt));
+				 audioOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*cGlobalLightInt));
+				 audioOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*cGlobalLightInt));
+
+			
+				 }
+			}
+				//osc1.mul=	1/l1Dist	*l1Int		*cGlobalLightInt;
+				//osc2.mul=	1/l2Dist	*l2Int		*cGlobalLightInt;
+				//osc3.mul=				l3Int		*cGlobalLightInt;
+
+
+        }
+
+    function freezeSimulation(freeze)
+      {ACTIVATED=true;
+      	SIMULATE=!freeze;
+      	if (!SIMULATE)
+				{audioFreezeloop.setVolume(0.2);
+				 audioBgloop.setVolume(0);
+				 audioRainrumba.setVolume(0.2);
+				 audioRumba.setVolume(0);
+				 audioOsc1_1.stop();
+				 audioOsc1_2.stop();
+				 audioOsc2_1.stop();
+				 audioOsc2_2.stop();
+				 audioOsc3_1.stop();
+				 audioOsc3_2.stop();
+			     audioFrOsc1_1.play();
+				 audioFrOsc1_2.play();
+				 audioFrOsc2_1.play();
+				 audioFrOsc2_2.play();
+				 audioFrOsc3_1.play();
+				 audioFrOsc3_2.play();
+				
+				 }
+			else
+				{audioFreezeloop.setVolume(0);
+				 audioBgloop.setVolume(0.2);
+				 audioRainrumba.setVolume(0);
+				 audioRumba.setVolume(0.35);
+				 audioOsc1_1.play();
+				 audioOsc1_2.play();
+				 audioOsc2_1.play();
+				 audioOsc2_2.play();
+				 audioOsc3_1.play();
+				 audioOsc3_2.play();
+				 audioFrOsc1_1.stop();
+				 audioFrOsc1_2.stop();
+				 audioFrOsc2_1.stop();
+				 audioFrOsc2_2.stop();
+				 audioFrOsc3_1.stop();
+				 audioFrOsc3_2.stop();
+
+				
+
+			
+				 }
+
+      }
+	
+		
+
+    window.onload = manageLoading;
+	
+        </script>
+
+    </body>
+</html>

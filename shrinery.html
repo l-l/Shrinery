@@ -118,7 +118,7 @@
         var WORLDSCALE=40; //40  -- scale the whole world for slow-motion feeling
         var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false;	//initial state of shadows, can be changed at runtime
-        var COLLAPSETIME=26;		//time to restart the scence in seconds
+        var COLLAPSETIME=22;		//time to restart the scence in seconds
         var MUTED=false;		// sound muted, changed at runtime
         var DEBUG=true;		//display stats
 
@@ -907,22 +907,10 @@ function initSound()
 					.3 // low restitution
 				);
 
-			//createPillar();
-            createPlinth();
-            /*
-            createFetish(5,3,4,5);
-            createFetish(6,4,2,8);
-            createFetish(4,5,2,16);
-            createFetish(2,3,2,10);
-            */
-            createScreen(9/4,16/4,6);
-            
-            //createFetish(6,3,4,12);
-         //   createLayoutTable(0,2, 4,3, 4);//(gridx,gridy, gridw,gridh, level); 
-		//	createLayoutTable(3,4, 3,5, 5);//(gridx,gridy, gridw,gridh, level); 
-		//	createLayoutTable(2,3, 2,2, 6);//(gridx,gridy, gridw,gridh, level); 
 			
-		//	 createAura();
+            createPlinth();
+            createScreen(9/4,16/4,6);
+            //	 createAura();
 		}
 	function createRemoveableBodies()
 	    {
@@ -1051,7 +1039,14 @@ function initSound()
 
 			for (var i=0;i<layoutTables.length;i++)
 			{
-				//layoutTables[i].leg1._geomLine.
+				
+				var v=new THREE.Vector3();
+				v.copy(layoutTables[i].top.position);
+				//v.sub(layoutTables[i].leg1.position);
+				layoutTables[i].leg1._geomLine.vertices[1]=layoutTables[i].leg1.localToWorld(v);
+			//	layoutTables[i].leg1._geomLine.vertices[1].y=layoutTables[i].leg2.position.y-layoutTables[i].leg1.position.y;
+			//		layoutTables[i].leg1._geomLine.vertices[1].z=layoutTables[i].leg2.position.z-layoutTables[i].leg1.position.z;
+
 			}
 			
             renderer.render( scene_physi, camera );
@@ -1122,11 +1117,11 @@ function initSound()
             var l3y=Math.sin( t * 0.5 +2*os );
 
             if (SIMULATE)
-            {
-            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
-            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
-            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
-            }
+	            {
+	            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
+	            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
+	            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
+	            }
             
             var l1Int= (((Math.sin(light1PulseAng)+1)/2)+0.1 ) ;
 
@@ -1159,8 +1154,9 @@ function initSound()
             cGlobalLightInt+=(tGlobalLightInt-cGlobalLightInt)/60;
             var intMult=1.4;
             if (!ACTIVATED) intMult=0.1;
+            // blinking at top and bottom positions
             var l1IntOs=0,l2IntOs=0,l3IntOs=0;
-            if (!resetting)
+            if (!resetting && ACTIVATED)
 	            {if(Math.abs(l1y)>0.99) l1IntOs=2;
 	            if(Math.abs(l2y)>0.99) l2IntOs=2;
 	            if(Math.abs(l3y)>0.99) l3IntOs=2;

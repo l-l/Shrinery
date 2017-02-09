@@ -4,90 +4,101 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
-            body {
-                color: #cccccc;
-                font-family:Monospace;
-                font-size:13px;
-                text-align:center;
+			html, body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				background: blue;
+				position: relative;
+			}
+			.shrines {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+			}
+			.gui {
+				position: absolute;
+				bottom: 20px;
+				left: 20px;
+				right: 20px;
+				text-align: center;
+				
+			}
+			.gui ul {
+				border: 1px white solid;
+				display: inline-block;
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+			.gui li {
+				display: inline-block;
+				border-right: 1px #fff solid;
+			}
+			.gui li:last-child {
+				border: none;
+			}
+			.gui button {
+				display: inline-block;
+				text-align: center;
+				border: 0;
+				width: 40px;
+				height: 40px;
+				overflow: hidden;
+				cursor: pointer;
+			}
 
-                background-color: #fff;
-                margin: 0px;
-                overflow: hidden;
-            }
-            #shrines
-             {	position: relative;
-             	width: 100%;
-             	height: 100%;
-             	border:  100px solid white;
-             	
-             }
+			button.quality {
+				background: #666;
+			}
+			button.quality.active {
+				background: red;
+			}
+			button.sound {
+				background: #666;
 
-            #container
-             	{	position: absolute;
-             		
-   					
-             	}
-            #info {
-                position: absolute;
-                bottom: 0px; width: 100%;
-                padding: 5px;
-            }
-            #gui
-            {
-                position: absolute;
-	            width:40px;
-	            height: 100%;
-	            top:100;
-	          //  padding: 10px;
-	            text-align: center;
-            }
-            a {
+			}
+			button.sound.active {
+				background: blue;
+			}
 
-                color: #a06851;
-            }
-
-		.button {
-			
-		
-			float:left
-			top:200px;
-			margin: 10;
-			 display: inline-block;
-		    background-color: #4CAF50; /* Green */
-		    padding: 16px 16px;
-		    text-align: center;
-		    text-decoration: none;
-		  
-		    font-size: 14px;
-		    -webkit-transition-duration: 0.4s; /* Safari */
-		    transition-duration: 0.4s;
-		    cursor: pointer;
-		    background-color: transparent; 
-    		color: black; 
-   			border: 1px solid rgba(255,255,255,0.2);
-		}
-
-		
-
-		.button:hover {
-
-		 //   background-color: #4CAF50;
-			 border: 1px solid rgba(255,255,255,0.6);
-		    color: rgba(255,255,255,0.6);
-		}
-
-
-
+			button span.active {
+				display: none;				
+			}
+			button.active span.active {
+				display: block;
+			}
+			button.active span.default {
+				display: none;
+			}			
         </style>
     </head>
     <body>
-    <div id="shrines">
-		<div id="info">shrines</div>
-        <div id="container"><br /><br /><br /><br /><br />Loading...</div>
-    	<div id="gui">
-			<input type="button" value="Q" class="button" onClick="toggleQuality();"></input>
-			<input type="button" value="S" class="button" onClick="toggleSound();"></input>
-			
+    <div class="shrines">
+        <div id="container" class="container"><br /><br /><br /><br /><br />Loading...</div>
+		<div class="gui">
+			<ul>
+				<li>
+					<button type="button" class="quality" onClick="toggleQuality();">
+						<span class="default">QL</span>
+						<span class="active">QH</span>
+					</button>
+				</li><!--
+				--><li>
+					<button type="button" class="sound" onClick="toggleSound();">
+						<span class="default">QL</span>
+						<span class="active">QH</span>						
+					</button>
+				</li><!--
+				--><li>
+					<button type="button" class="info" onClick="loadLocation();">
+						<span class="default">QL</span>
+					</button>
+				</li>
+			</ul>
 		</div>
 	</div>   
 
@@ -992,7 +1003,7 @@ function initSound()
 				var newHeight = Math.floor( height / pixelRatio ) || 1;
 				//depthRenderTarget.setSize( newWidth, newHeight );
 				//effectComposer.setSize( newWidth, newHeight );
-				renderer.setSize( width-200, height-200 );
+				renderer.setSize( width, height);
 
 
 		}

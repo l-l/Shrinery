@@ -304,6 +304,8 @@ function createPillar()
 		            p.add(center);
 		            p.multiplyScalar(WORLDSCALE);
 					var leg1=createBoxPhys( unit*WORLDSCALE, legHeight*WORLDSCALE, unit*WORLDSCALE, brickMass*WORLDSCALE, p,   false ); //sx, sy, sz, mass, pos) 
+
+					/*
 		         	var geomLeg1Line=new THREE.Geometry();
 		         	
 					geomLeg1Line.vertices.push(
@@ -314,7 +316,8 @@ function createPillar()
 					var leg1Line = new THREE.Line( geomLeg1Line, lineMaterial );
 					leg1.add( leg1Line );
 					leg1._geomLine=geomLeg1Line;
-
+					leg1._line=leg1Line;
+					*/
 
 					// LEG2 topright
 		            legHeight=level-layoutHeights[gridx+gridw-1][gridy]-topHeight; 

@@ -67,7 +67,51 @@
    			border: 1px solid rgba(255,255,255,0.2);
 		}
 
-		
+		#ck-button {
+		    float:left
+			top:200px;
+			margin: 10;
+			 display: inline-block;
+		    background-color: #4CAF50; /* Green */
+		    padding: 16px 16px;
+		    text-align: center;
+		    text-decoration: none;
+		  
+		    font-size: 14px;
+		    -webkit-transition-duration: 0.4s; /* Safari */
+		    transition-duration: 0.4s;
+		    cursor: pointer;
+		    background-color: transparent; 
+    		color: black; 
+   			border: 1px solid rgba(255,255,255,0.2);		}
+
+		#ck-button:hover {
+		   border: 1px solid rgba(255,255,255,0.6);
+		    color: rgba(255,255,255,0.6);
+
+		}
+
+		#ck-button label {
+		    float:left;
+		    width:4.0em;
+		    cursor: pointer;
+		}
+
+		#ck-button label span {
+		    text-align:center;
+		    padding:3px 0px;
+		    display:block;
+		}
+
+		#ck-button label input {
+		    position:absolute;
+		    top:-20px;
+		}
+
+		#ck-button input:checked + span {
+		    background-color:#911;
+		    color:#fff;
+		}
 
 		.button:hover {
 
@@ -75,19 +119,37 @@
 			 border: 1px solid rgba(255,255,255,0.6);
 		    color: rgba(255,255,255,0.6);
 		}
+		 input[type=checkbox] {
+		    visibility: hidden;
+		}
 
-
+		.imgButton
+		{
+			background:url(img/shrineCircular.svg);
+			background-size: 100% 100%;
+			  cursor:pointer;
+    border:none;
+    width:100px;
+    height:100px;
+   // background-color: #4CAF50;
+		}
 
         </style>
     </head>
     <body>
+    <
     <div id="shrines">
 		<div id="info">shrines</div>
         <div id="container"><br /><br /><br /><br /><br />Loading...</div>
     	<div id="gui">
 			<input type="button" value="Q" class="button" onClick="toggleQuality();"></input>
 			<input type="button" value="S" class="button" onClick="toggleSound();"></input>
-			
+			<div id="ck-button">
+			   <label>
+			      <input type="checkbox" value="1"><span>red</span>
+			   </label>
+			</div>
+			<input type="button" value="" class="imgButton" onClick="toggleQuality();  this.style.visibility= 'hidden';"></input>
 		</div>
 	</div>   
 
@@ -118,16 +180,16 @@
         var WORLDSCALE=40; //40  -- scale the whole world for slow-motion feeling
         var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false;	//initial state of shadows, can be changed at runtime
-        var COLLAPSETIME=22;		//time to restart the scence in seconds
+        var COLLAPSETIME=40;		//time to restart the scence in seconds
         var MUTED=false;		// sound muted, changed at runtime
-        var DEBUG=true;		//display stats
+        var DEBUG=false;		//display stats
 
 
         var countdown=COLLAPSETIME;	// the countdown to the next restart
         
         var frm=0;					// frame counter, for rendering the physics engine only every 2nd frame
 
-        var timestep=1/1000;		// not really used anymore
+       // var timestep=1/1000;		// not really used anymore
         
 		// Graphics variables
 		var container, stats, physics_stats;
@@ -731,7 +793,7 @@ function initSound()
            	initRenderer();
            	initSound();
             //SCENE Physi
-            scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/120 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
+            scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/90 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
             scene_physi.setGravity(new THREE.Vector3( 0, -10, 0 ));
             scene_physi.addEventListener(
                 'update',
@@ -955,7 +1017,7 @@ function initSound()
 				    break;
 
 				    case 68://D
-				      timestep=1/5.0;
+				     // timestep=1/5.0;
 					
 				    break;
 			    }
@@ -1018,15 +1080,15 @@ function initSound()
          
           frm++;
           
-            if (SIMULATE && frm%2==0) 
-            	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
+            if (SIMULATE && frm%1==0) 
+            	{scene_physi.simulate(delta, 3 ); //timestep, maxsteps
            		 countdown-=delta;
            		}
             if (countdown<=0 && !resetting) 
             	{prepareReset();
             	 //console.log("prepare reset");
             	}
-
+           	
         	controls.update(delta );
 			animateLights(delta);
 			updateTexCanvas();
@@ -1036,19 +1098,29 @@ function initSound()
 		    skybox.position.z=camera.position.z;
 		    */
 			if (DEBUG) stats.update();
-
+/*
 			for (var i=0;i<layoutTables.length;i++)
 			{
 				
-				var v=new THREE.Vector3();
-				v.copy(layoutTables[i].top.position);
+				var v=new THREE.Vector3(0,160,0);
+				//v.copy(layoutTables[i].top.position);
 				//v.sub(layoutTables[i].leg1.position);
-				layoutTables[i].leg1._geomLine.vertices[1]=layoutTables[i].leg1.localToWorld(v);
+				//scene_physi.update();
+				
+				var nv=layoutTables[i].leg1.worldToLocal(v);
+				layoutTables[i].leg1._geomLine.dynamic = true;
+				layoutTables[i].leg1._geomLine.vertices[1].x=nv.x;
+				layoutTables[i].leg1._geomLine.vertices[1].y=nv.y;
+				layoutTables[i].leg1._geomLine.vertices[1].z=nv.z;
+				//layoutTables[i].leg1._geomLine.vertices[0]=new THREE.Vector3(0,0,0);
+				//layoutTables[i].leg1._geomLine.__dirtyVertices = true;
+				layoutTables[i].leg1._geomLine.verticesNeedUpdate = true;
+				if (i==1) console.log(layoutTables[i].leg1.worldToLocal(v));
 			//	layoutTables[i].leg1._geomLine.vertices[1].y=layoutTables[i].leg2.position.y-layoutTables[i].leg1.position.y;
 			//		layoutTables[i].leg1._geomLine.vertices[1].z=layoutTables[i].leg2.position.z-layoutTables[i].leg1.position.z;
 
 			}
-			
+			*/
             renderer.render( scene_physi, camera );
             requestAnimationFrame( render );
 			
@@ -1292,12 +1364,12 @@ function initSound()
 				 audioOsc2_2.stop();
 				 audioOsc3_1.stop();
 				 audioOsc3_2.stop();
-			     audioFrOsc1_1.play();
-				 audioFrOsc1_2.play();
-				 audioFrOsc2_1.play();
-				 audioFrOsc2_2.play();
-				 audioFrOsc3_1.play();
-				 audioFrOsc3_2.play();
+			    if( !audioFrOsc1_1.isPlaying) audioFrOsc1_1.play();
+				if( !audioFrOsc1_2.isPlaying)  audioFrOsc1_2.play();
+				if( !audioFrOsc2_1.isPlaying) audioFrOsc2_1.play();
+				if( !audioFrOsc2_2.isPlaying)  audioFrOsc2_2.play();
+				if( !audioFrOsc3_1.isPlaying) audioFrOsc3_1.play();
+				if( !audioFrOsc3_2.isPlaying)  audioFrOsc3_2.play();
 				
 				 }
 			else
@@ -1305,12 +1377,12 @@ function initSound()
 				 //audioBgloop.setVolume(0.2);
 				 audioRainrumba.setVolume(0);
 				 audioRumba.setVolume(0.35);
-				 audioOsc1_1.play();
-				 audioOsc1_2.play();
-				 audioOsc2_1.play();
-				 audioOsc2_2.play();
-				 audioOsc3_1.play();
-				 audioOsc3_2.play();
+				if( !audioOsc1_1.isPlaying)  audioOsc1_1.play();
+				if( !audioOsc1_2.isPlaying)  audioOsc1_2.play();
+				if( !audioOsc2_1.isPlaying)  audioOsc2_1.play();
+				if( !audioOsc2_2.isPlaying)  audioOsc2_2.play();
+				if( !audioOsc3_1.isPlaying)  audioOsc3_1.play();
+				if( !audioOsc3_2.isPlaying)  audioOsc3_2.play();
 				 audioFrOsc1_1.stop();
 				 audioFrOsc1_2.stop();
 				 audioFrOsc2_1.stop();
@@ -1318,7 +1390,7 @@ function initSound()
 				 audioFrOsc3_1.stop();
 				 audioFrOsc3_2.stop();
 
-				
+				scene_physi.onSimulationResume();
 
 			
 				 }

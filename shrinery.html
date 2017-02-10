@@ -4,143 +4,82 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
-<<<<<<< HEAD
-            body {
-                color: #cccccc;
-                font-family:Monospace;
-                font-size:13px;
-                text-align:center;
 
-                background-color: #fff;
-                margin: 0px;
-                overflow: hidden;
-            }
-            #shrines
-             {	position: relative;
-             	width: 100%;
-             	height: 100%;
-             	border:  100px solid white;
-             	
-             }
+           
 
             #container
              	{	position: absolute;
              		
    					
              	}
-            #info {
-                position: absolute;
-                bottom: 0px; width: 100%;
-                padding: 5px;
-            }
-            #gui
-            {
-                position: absolute;
-	            width:40px;
-	            height: 100%;
-	            top:100;
-	          //  padding: 10px;
-	            text-align: center;
-            }
-            a {
+         
+			.activate
+			{		
+				position: absolute;
+				
+			 	cursor:pointer;
+   			   border:none;
+    		  width:100%;
+   			 height:100%;
+   			// background-color:rgba(0, 0, 0, 0);
+   			background: transparent;
+   			
+			}
+			.activate img{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width:100px;
+				height: 100px;
 
-                color: #a06851;
-            }
-
-		.button {
+			}
+			.infoPanel {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				
+				width:200px;
+				height:200px;
+				text-align: center;
+				color: white;
+			//	display: inline-block;
 			
-		
-			float:left
-			top:200px;
-			margin: 10;
-			 display: inline-block;
-		    background-color: #4CAF50; /* Green */
-		    padding: 16px 16px;
-		    text-align: center;
-		    text-decoration: none;
-		  
-		    font-size: 14px;
-		    -webkit-transition-duration: 0.4s; /* Safari */
-		    transition-duration: 0.4s;
-		    cursor: pointer;
-		    background-color: transparent; 
-    		color: black; 
-   			border: 1px solid rgba(255,255,255,0.2);
-		}
+				background-color: black;
 
-		#ck-button {
-		    float:left
-			top:200px;
-			margin: 10;
-			 display: inline-block;
-		    background-color: #4CAF50; /* Green */
-		    padding: 16px 16px;
-		    text-align: center;
-		    text-decoration: none;
-		  
-		    font-size: 14px;
-		    -webkit-transition-duration: 0.4s; /* Safari */
-		    transition-duration: 0.4s;
-		    cursor: pointer;
-		    background-color: transparent; 
-    		color: black; 
-   			border: 1px solid rgba(255,255,255,0.2);		}
+			}
+			.infoPanel span {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			  display: inline-block;
+			  vertical-align: middle;
+			  width:100%;
+			//  height: 180px;
+			 // line-height: 200px;
+			}
+			.loadingBar{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width:60px;
+				height: 5px;
+				background: white;
+				display: block;
+				//transition: width 0.1s;
+				//-webkit-transition: width 0.1s;
+			}
 
-		#ck-button:hover {
-		   border: 1px solid rgba(255,255,255,0.6);
-		    color: rgba(255,255,255,0.6);
 
-		}
-
-		#ck-button label {
-		    float:left;
-		    width:4.0em;
-		    cursor: pointer;
-		}
-
-		#ck-button label span {
-		    text-align:center;
-		    padding:3px 0px;
-		    display:block;
-		}
-
-		#ck-button label input {
-		    position:absolute;
-		    top:-20px;
-		}
-
-		#ck-button input:checked + span {
-		    background-color:#911;
-		    color:#fff;
-		}
-
-		.button:hover {
-
-		 //   background-color: #4CAF50;
-			 border: 1px solid rgba(255,255,255,0.6);
-		    color: rgba(255,255,255,0.6);
-		}
-		 input[type=checkbox] {
-		    visibility: hidden;
-		}
-
-		.imgButton
-		{
-			background:url(img/shrineCircular.svg);
-			background-size: 100% 100%;
-			  cursor:pointer;
-    border:none;
-    width:100px;
-    height:100px;
-   // background-color: #4CAF50;
-		}
-=======
 			html, body {
 				height: 100%;
 				margin: 0;
 				padding: 0;
 				overflow: hidden;
-				background: blue;
+				background: black;
 				position: relative;
 			}
 			.shrines {
@@ -156,6 +95,7 @@
 				left: 20px;
 				right: 20px;
 				text-align: center;
+				visibility: hidden;
 				
 			}
 			.gui ul {
@@ -184,18 +124,40 @@
 
 			button.quality {
 				background: #666;
+				background: transparent;
+				background-image: url(img/shrineCircular.svg);
+				background-repeat: no-repeat;
+				background-size: 20px 20px;
+				background-position: center; 
 			}
-			button.quality.active {
+			button.quality.hi {
 				background: red;
-			}
-			button.sound {
-				background: #666;
+				background: transparent;
+				background-image: url(img/shrineCircular.svg);
+				background-repeat: no-repeat;
+				background-size: 20px 20px;
+				background-position: center; 
 
 			}
-			button.sound.active {
+			button.sound {
+				background: transparent;
+				background-image: url(img/shrineCircular.svg);
+				background-repeat: no-repeat;
+				background-size: 20px 20px;
+				background-position: center; 
+
+			}
+			button.sound.muted {
+				background: transparent;
+				background-image: url(img/shrineCircular.svg);
+				background-repeat: no-repeat;
+				background-size: 20px 20px;
+				background-position: center; 
+			}
+
+			button.sound:hover, button.quality:hover{
 				background: blue;
 			}
->>>>>>> origin/release
 
 			button span.active {
 				display: none;				
@@ -209,45 +171,57 @@
         </style>
     </head>
     <body>
-<<<<<<< HEAD
-    <
-    <div id="shrines">
-		<div id="info">shrines</div>
-        <div id="container"><br /><br /><br /><br /><br />Loading...</div>
-    	<div id="gui">
-			<input type="button" value="Q" class="button" onClick="toggleQuality();"></input>
-			<input type="button" value="S" class="button" onClick="toggleSound();"></input>
-			<div id="ck-button">
-			   <label>
-			      <input type="checkbox" value="1"><span>red</span>
-			   </label>
-			</div>
-			<input type="button" value="" class="imgButton" onClick="toggleQuality();  this.style.visibility= 'hidden';"></input>
-=======
+    <script type="text/javascript">
+    function butQualityToggle()
+	  { toggleQuality();
+	  	if (ENABLESHADOWS) 	document.getElementById("butQuality").className = "quality hi";
+	  	else document.getElementById("butQuality").className = "quality";
+	  	console.log("ya"+document.getElementById("butQuality"));
+	  }
+	 function butSoundToggle()
+	  { toggleSound();
+	  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
+	  	else document.getElementById("butSound").className = "sound";
+	 // 	console.log("ya"+document.getElementById("butSound"));
+	  }
+
+	 function butActivate()
+	 {
+	 	freezeSimulation(false);
+	 	document.getElementById("gui").style.visibility='visible';
+	 }
+    </script>
+
     <div class="shrines">
-        <div id="container" class="container"><br /><br /><br /><br /><br />Loading...</div>
-		<div class="gui">
+        <div id="container" class="container"></div>
+        <button class="activate" onclick="butActivate();this.style.visibility='hidden';">
+        <div id="loadingBar" class="loadingBar"></div>
+        	<img src="img/shrineCircular.svg" />
+        	
+		</button>
+		<div id="infoPanel" class="infoPanel"><span>Shrine by <a href="http://depart.at">depart</a><br><br>there will always be beginnings</span></div>
+		<div class="gui" id="gui">
+			
 			<ul>
 				<li>
-					<button type="button" class="quality" onClick="toggleQuality();">
+					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();">
 						<span class="default">QL</span>
 						<span class="active">QH</span>
 					</button>
 				</li><!--
 				--><li>
-					<button type="button" class="sound" onClick="toggleSound();">
-						<span class="default">QL</span>
-						<span class="active">QH</span>						
+					<button id="butSound" type="button" class="sound" onClick="butSoundToggle();">
+						<span class="default">On</span>
+						<span class="active">Off</span>						
 					</button>
 				</li><!--
 				--><li>
-					<button type="button" class="info" onClick="loadLocation();">
-						<span class="default">QL</span>
+					<button id="butInfo" type="button" class="info" onClick="loadLocation();">
+						<span class="default">()</span>
 					</button>
 				</li>
 			</ul>
->>>>>>> origin/release
-		</div>
+</div>
 	</div>   
 
 
@@ -279,7 +253,7 @@
         var ENABLESHADOWS=false;	//initial state of shadows, can be changed at runtime
         var COLLAPSETIME=40;		//time to restart the scence in seconds
         var MUTED=false;		// sound muted, changed at runtime
-        var DEBUG=false;		//display stats
+        var DEBUG=true;		//display stats
 
 
         var countdown=COLLAPSETIME;	// the countdown to the next restart
@@ -458,6 +432,7 @@ function initSound()
 			controls.minDistance = 10*WORLDSCALE;
 			controls.maxDistance = 25*WORLDSCALE;
 			controls.momentumScalingFactor=0.00001;
+			scene_physi.add(camera); // only necessary because the skybox is CHILD of the cam
 
 		 }
 
@@ -786,6 +761,8 @@ function initSound()
 				THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 
 				//	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+				//var el=document.getElementById("loadingBar");
+				document.getElementById("loadingBar").style.width=(1-itemsLoaded/itemsTotal)*60;
 
 				};
 
@@ -885,12 +862,14 @@ function initSound()
  					ENABLESHADOWS=false;
  					ANTIALIAS=false;
 				}
+
+				scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/90 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
 			
            	initCamera();
            	initRenderer();
            	initSound();
             //SCENE Physi
-            scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/90 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
+            
             scene_physi.setGravity(new THREE.Vector3( 0, -10, 0 ));
             scene_physi.addEventListener(
                 'update',
@@ -939,7 +918,7 @@ function initSound()
 			    skyBoxMaterial
 			);
 
-			scene_physi.add(skybox);
+			camera.add(skybox);
 
 
 			// create ground plane ------------------------------------------------------
@@ -1127,10 +1106,10 @@ function initSound()
 
 		    }, false );
 
-		    window.addEventListener( 'mousedown', function( event ) {
+		    document.getElementById("container").addEventListener( 'mousedown', function( event ) {
 		    	if(!resetting) freezeSimulation(true);
 		    }, false );
-		    window.addEventListener( 'mouseup', function( event ) {
+		    document.getElementById("container").addEventListener( 'mouseup', function( event ) {
 		    	if(!resetting) freezeSimulation(false);
 		    }, false );
 
@@ -1321,7 +1300,7 @@ function initSound()
             light3.position.z+=(l3z-light3.position.z)/5.0;
 
             cGlobalLightInt+=(tGlobalLightInt-cGlobalLightInt)/60;
-            var intMult=1.4;
+            var intMult=1.0;
             if (!ACTIVATED) intMult=0.1;
             // blinking at top and bottom positions
             var l1IntOs=0,l2IntOs=0,l3IntOs=0;
@@ -1499,7 +1478,10 @@ function initSound()
 
     window.onload = manageLoading;
 	
+
+
         </script>
+	  }
 
     </body>
 </html>

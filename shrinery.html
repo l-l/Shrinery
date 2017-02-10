@@ -9,7 +9,8 @@
 
             #container
              	{	position: absolute;
-             		
+             		width: 100%;
+					 height: 100%;
    					
              	}
          
@@ -21,7 +22,7 @@
    			   border:none;
     		  width:100%;
    			 height:100%;
-   			// background-color:rgba(0, 0, 0, 0);
+   			/* background-color:rgba(0, 0, 0, 0);*/
    			background: transparent;
    			
 			}
@@ -44,21 +45,17 @@
 				height:200px;
 				text-align: center;
 				color: white;
-			//	display: inline-block;
 			
+				visibility: hidden;
 				background-color: black;
 
 			}
-			.infoPanel span {
+			.infoPanel div {
 				position: absolute;
 				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-			  display: inline-block;
-			  vertical-align: middle;
-			  width:100%;
-			//  height: 180px;
-			 // line-height: 200px;
+				left: 0;
+				transform: translateY(-50%);
+			  	text-align: center;
 			}
 			.loadingBar{
 				position: absolute;
@@ -68,7 +65,6 @@
 				width:60px;
 				height: 5px;
 				background: white;
-				display: block;
 				//transition: width 0.1s;
 				//-webkit-transition: width 0.1s;
 			}
@@ -125,36 +121,43 @@
 			button.quality {
 				background: #666;
 				background: transparent;
-				background-image: url(img/shrineCircular.svg);
+				background-image: url(img/icQual.svg);
 				background-repeat: no-repeat;
-				background-size: 20px 20px;
+				background-size: 16px 16px;
 				background-position: center; 
 			}
 			button.quality.hi {
 				background: red;
 				background: transparent;
-				background-image: url(img/shrineCircular.svg);
+				background-image: url(img/icQual.svg);
 				background-repeat: no-repeat;
-				background-size: 20px 20px;
+				background-size: 16px 16px;
 				background-position: center; 
 
 			}
 			button.sound {
 				background: transparent;
-				background-image: url(img/shrineCircular.svg);
+				background-image: url(img/icMute.svg);
 				background-repeat: no-repeat;
-				background-size: 20px 20px;
+				background-size: 16px 16px;
 				background-position: center; 
 
 			}
 			button.sound.muted {
 				background: transparent;
-				background-image: url(img/shrineCircular.svg);
+				background-image: url(img/icMuted.svg);
 				background-repeat: no-repeat;
-				background-size: 20px 20px;
+				background-size: 16px 16px;
 				background-position: center; 
 			}
+			button.info {
+				background: transparent;
+				background-image: url(img/icAbout.svg);
+				background-repeat: no-repeat;
+				background-size: 16px 16px;
+				background-position: center; 
 
+			}
 			button.sound:hover, button.quality:hover{
 				background: blue;
 			}
@@ -199,25 +202,25 @@
         	<img src="img/shrineCircular.svg" />
         	
 		</button>
-		<div id="infoPanel" class="infoPanel"><span>Shrine by <a href="http://depart.at">depart</a><br><br>there will always be beginnings</span></div>
+		<div id="infoPanel" class="infoPanel"><div>Shrine by <a href="http://depart.at">depart</a><br><br>there will always be beginnings</div></div>
 		<div class="gui" id="gui">
 			
 			<ul>
 				<li>
 					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();">
-						<span class="default">QL</span>
-						<span class="active">QH</span>
+						<span class="default"></span>
+						<span class="active"></span>
 					</button>
 				</li><!--
 				--><li>
 					<button id="butSound" type="button" class="sound" onClick="butSoundToggle();">
-						<span class="default">On</span>
-						<span class="active">Off</span>						
+						<span class="default"></span>
+						<span class="active"></span>						
 					</button>
 				</li><!--
 				--><li>
 					<button id="butInfo" type="button" class="info" onClick="loadLocation();">
-						<span class="default">()</span>
+						<span class="default"></span>
 					</button>
 				</li>
 			</ul>
@@ -1123,8 +1126,9 @@ function initSound()
 		//	renderer.setSize( window.innerWidth, window.innerHeight );
 			// Resize renderTargets
 				//ssaoPass.uniforms[ 'size' ].value.set( width, height );
-				var width=window.innerWidth;
-				var height=window.innerHeight;
+				var el=document.getElementById("container");
+				var width=el.offsetWidth;//window.innerWidth;
+				var height=el.offsetHeight;//window.innerHeight;
 				var pixelRatio = renderer.getPixelRatio();
 				var newWidth  = Math.floor( width / pixelRatio ) || 1;
 				var newHeight = Math.floor( height / pixelRatio ) || 1;
@@ -1157,7 +1161,7 @@ function initSound()
           frm++;
           
             if (SIMULATE && frm%1==0) 
-            	{scene_physi.simulate(delta, 3 ); //timestep, maxsteps
+            	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
            		 countdown-=delta;
            		}
             if (countdown<=0 && !resetting) 

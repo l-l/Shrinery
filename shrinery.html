@@ -371,13 +371,13 @@ function initSound()
 	audioBgloop.setVolume(0);
 	audioRainrumba.setVolume(0);
 	audioRumba.setVolume(0);
-	audioBassic1.stop();
-	audioBassic2.stop();
-	audioBassic3.stop();
+	if (audioBassic1.isPlaying) audioBassic1.stop();
+	if (audioBassic2.isPlaying) audioBassic2.stop();
+	if (audioBassic3.isPlaying) audioBassic3.stop();
 
-	audioBassic1_1.stop();
-	audioBassic2_1.stop();
-	audioBassic3_1.stop();
+	if (audioBassic1_1.isPlaying) audioBassic1_1.stop();
+	if (audioBassic2_1.isPlaying) audioBassic2_1.stop();
+	if (audioBassic3_1.isPlaying) audioBassic3_1.stop();
 		
 
 	audioFrOsc1_1.setVolume(0);
@@ -396,18 +396,18 @@ function initSound()
 	audioOsc2_2.setVolume(0);
 	audioOsc3_2.setVolume(0);
 
-	audioOsc1_1.stop();
-	audioOsc1_2.stop();
-	audioOsc2_1.stop();
-	audioOsc2_2.stop();
-	audioOsc3_1.stop();
-	audioOsc3_2.stop();
-	audioFrOsc1_1.stop();
-	audioFrOsc1_2.stop();
-	audioFrOsc2_1.stop();
-	audioFrOsc2_2.stop();
-	audioFrOsc3_1.stop();
-	audioFrOsc3_2.stop();
+	if (audioOsc1_1.isPlaying) audioOsc1_1.stop();
+	if (audioOsc1_2.isPlaying) audioOsc1_2.stop();
+	if (audioOsc2_1.isPlaying) audioOsc2_1.stop();
+	if (audioOsc2_2.isPlaying) audioOsc2_2.stop();
+	if (audioOsc3_1.isPlaying) audioOsc3_1.stop();
+	if (audioOsc3_2.isPlaying) audioOsc3_2.stop();
+	if (audioOsc1_1.isPlaying) audioFrOsc1_1.stop();
+	if (audioOsc1_2.isPlaying) audioFrOsc1_2.stop();
+	if (audioOsc2_1.isPlaying) audioFrOsc2_1.stop();
+	if (audioOsc2_2.isPlaying) audioFrOsc2_2.stop();
+	if (audioOsc3_1.isPlaying) audioFrOsc3_1.stop();
+	if (audioOsc3_2.isPlaying) audioFrOsc3_2.stop();
 
 	
 	 
@@ -535,7 +535,7 @@ function initSound()
 
 				listener = new THREE.AudioListener();
 				audioBgloop = new THREE.Audio( listener );
-				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.ogg', function( buffer ) {
+				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.wav', function( buffer ) {
 					audioBgloop.setBuffer( buffer );
 					audioBgloop.setLoop(true);
 					audioBgloop.setVolume(0);
@@ -544,7 +544,7 @@ function initSound()
 				});
 
 						audioFreezeloop = new THREE.Audio( listener );
-				freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.ogg', function( buffer ) {
+				freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.mp3', function( buffer ) {
 					audioFreezeloop.setBuffer( buffer );
 					audioFreezeloop.setLoop(true);
 					audioFreezeloop.setVolume(0);
@@ -553,7 +553,7 @@ function initSound()
 				});
 			
 				audioRumba = new THREE.Audio( listener );
-				rumba = new THREE.AudioLoader().load( 'snd/rumba.ogg', function( buffer ) {
+				rumba = new THREE.AudioLoader().load( 'snd/rumba.mp3', function( buffer ) {
 					audioRumba.setBuffer( buffer );
 					audioRumba.setLoop(true);
 					audioRumba.setVolume(0);
@@ -562,7 +562,7 @@ function initSound()
 				});
 
 				audioRainrumba = new THREE.Audio( listener );
-				rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.ogg', function( buffer ) {
+				rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.mp3', function( buffer ) {
 					audioRainrumba.setBuffer( buffer );
 					audioRainrumba.setLoop(true);
 					audioRainrumba.setVolume(0);
@@ -689,21 +689,21 @@ function initSound()
 
 				//listener = new THREE.AudioListener();
 				audioBassic1 = new THREE.Audio( listener );
-				snd_Bassic1 = new THREE.AudioLoader().load( 'snd/bassic_1.ogg', function( buffer ) {
+				snd_Bassic1 = new THREE.AudioLoader().load( 'snd/bassic_1.mp3', function( buffer ) {
 					audioBassic1.setBuffer( buffer );
 					audioBassic1.setLoop(false);
 					audioBassic1.setVolume(0);
 					audioBassic1.play();
 				});
 				audioBassic2 = new THREE.Audio( listener );
-				snd_Bassic2 = new THREE.AudioLoader().load( 'snd/bassic_2.ogg', function( buffer ) {
+				snd_Bassic2 = new THREE.AudioLoader().load( 'snd/bassic_2.mp3', function( buffer ) {
 					audioBassic2.setBuffer( buffer );
 					audioBassic2.setLoop(false);
 					audioBassic2.setVolume(0);
 					audioBassic2.play();
 				});
 				audioBassic3 = new THREE.Audio( listener );
-				snd_Bassic3 = new THREE.AudioLoader().load( 'snd/bassic_3.ogg', function( buffer ) {
+				snd_Bassic3 = new THREE.AudioLoader().load( 'snd/bassic_3.mp3', function( buffer ) {
 					audioBassic3.setBuffer( buffer );
 					audioBassic3.setLoop(false);
 					audioBassic3.setVolume(0);
@@ -711,21 +711,21 @@ function initSound()
 				});
 
 				audioBassic1_1 = new THREE.Audio( listener );
-				snd_Bassic1_1 = new THREE.AudioLoader().load( 'snd/bassic_4.ogg', function( buffer ) {
+				snd_Bassic1_1 = new THREE.AudioLoader().load( 'snd/bassic_4.mp3', function( buffer ) {
 					audioBassic1_1.setBuffer( buffer );
 					audioBassic1_1.setLoop(false);
 					audioBassic1_1.setVolume(0);
 					audioBassic1_1.play();
 				});
 				audioBassic2_1 = new THREE.Audio( listener );
-				snd_Bassic2_1 = new THREE.AudioLoader().load( 'snd/bassic_5.ogg', function( buffer ) {
+				snd_Bassic2_1 = new THREE.AudioLoader().load( 'snd/bassic_5.mp3', function( buffer ) {
 					audioBassic2_1.setBuffer( buffer );
 					audioBassic2_1.setLoop(false);
 					audioBassic2_1.setVolume(0);
 					audioBassic2_1.play();
 				});
 				audioBassic3_1 = new THREE.Audio( listener );
-				snd_Bassic3_1 = new THREE.AudioLoader().load( 'snd/bassic_6.ogg', function( buffer ) {
+				snd_Bassic3_1 = new THREE.AudioLoader().load( 'snd/bassic_6.mp3', function( buffer ) {
 					audioBassic3_1.setBuffer( buffer );
 					audioBassic3_1.setLoop(false);
 					audioBassic3_1.setVolume(0);
@@ -734,7 +734,7 @@ function initSound()
 
 				//listener = new THREE.AudioListener();
 				audioKling = new THREE.Audio( listener );
-				snd_Kling = new THREE.AudioLoader().load( 'snd/klingeling.ogg', function( buffer ) {
+				snd_Kling = new THREE.AudioLoader().load( 'snd/klingeling.mp3', function( buffer ) {
 					audioKling.setBuffer( buffer );
 					audioKling.setLoop(true);
 					audioKling.setVolume(0);
@@ -748,7 +748,7 @@ function initSound()
 
 				THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
 
-				//console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+				console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
 
 				};
 
@@ -763,7 +763,7 @@ function initSound()
 
 				THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 
-				//	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+					console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
 				//var el=document.getElementById("loadingBar");
 				document.getElementById("loadingBar").style.width=(1-itemsLoaded/itemsTotal)*60;
 
@@ -1463,14 +1463,14 @@ function initSound()
 				if( !audioOsc2_2.isPlaying)  audioOsc2_2.play();
 				if( !audioOsc3_1.isPlaying)  audioOsc3_1.play();
 				if( !audioOsc3_2.isPlaying)  audioOsc3_2.play();
-				 audioFrOsc1_1.stop();
-				 audioFrOsc1_2.stop();
-				 audioFrOsc2_1.stop();
-				 audioFrOsc2_2.stop();
-				 audioFrOsc3_1.stop();
-				 audioFrOsc3_2.stop();
+				if (audioFrOsc1_1.isPlaying) audioFrOsc1_1.stop();
+				if (audioFrOsc1_2.isPlaying)  audioFrOsc1_2.stop();
+				if (audioFrOsc2_1.isPlaying)  audioFrOsc2_1.stop();
+				if (audioFrOsc2_2.isPlaying)  audioFrOsc2_2.stop();
+				if (audioFrOsc3_1.isPlaying)  audioFrOsc3_1.stop();
+				if (audioFrOsc3_2.isPlaying)  audioFrOsc3_2.stop();
 
-				scene_physi.onSimulationResume();
+				//scene_physi.onSimulationResume();
 
 			
 				 }

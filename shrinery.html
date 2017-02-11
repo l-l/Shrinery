@@ -27,9 +27,20 @@
 		  }
 		 function butSoundToggle()
 		  { toggleSound();
-		  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
-		  	else document.getElementById("butSound").className = "sound";
-		 // 	console.log("ya"+document.getElementById("butSound"));
+		//  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
+		 // 	else document.getElementById("butSound").className = "sound";
+		
+			 if (MUTED) 	
+			 	{document.getElementById("imgSoundOn").style.display = "none";
+			 	document.getElementById("imgSoundOff").style.display = "block";
+			 }
+			 else
+			 {document.getElementById("imgSoundOn").style.display = "block";
+			 	document.getElementById("imgSoundOff").style.display = "none";
+
+			 }
+		 // 	else document.getElementById("butSound").className = "sound";
+		  	console.log("ya "+document.getElementById("imgSoundOn").className);
 		  }
 
 		 function butActivate()
@@ -37,13 +48,15 @@
 		 	freezeSimulation(false);
 		 	document.getElementById("gui").style.visibility='visible';
 		 }
+
+		 
 	    </script>
 
     <div class="shrines">
         <div id="container" class="container"></div>
         <button class="activate" onclick="butActivate();this.style.visibility='hidden';">
 	        <div id="loadingBar" class="loadingBar"></div>
-	        <img src="img/shrineCircular.svg">
+	        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="100" height="89.96" viewBox="0 0 237.85 264.38"><defs><style>.cls-1{fill:#fff;}</style></defs><title>shrineCircular</title><path class="cls-1" d="M148.64,13.32l-3.5,3.09q-1.85-2.57-3.76-2.57a2.31,2.31,0,0,0-1.52.5,1.46,1.46,0,0,0-.59,1.12,1.94,1.94,0,0,0,.42,1.18,31.73,31.73,0,0,0,3.47,3.19c1.81,1.51,2.9,2.46,3.28,2.85a9.92,9.92,0,0,1,2,2.78,6.93,6.93,0,0,1,.6,2.9A6.65,6.65,0,0,1,147,33.41a7.73,7.73,0,0,1-5.51,2,8.18,8.18,0,0,1-4.62-1.3A10.29,10.29,0,0,1,133.46,30l4-2.4q1.79,3.29,4.13,3.29a3,3,0,0,0,2-.71,2.11,2.11,0,0,0,.83-1.64,2.82,2.82,0,0,0-.62-1.69,17.86,17.86,0,0,0-2.76-2.58,27.74,27.74,0,0,1-5.24-5.11,6.5,6.5,0,0,1-1.18-3.59,5.87,5.87,0,0,1,2-4.43,6.83,6.83,0,0,1,4.86-1.85,7.67,7.67,0,0,1,3.54.86A12.9,12.9,0,0,1,148.64,13.32Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M24.49,81.19l6.78-11.74,4,2.31-4.43,7.68,3.89,2.25L39.16,74l3.94,2.27L38.66,84l5.66,3.27,4.43-7.68,4,2.32L46,93.61Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M32.52,216.36l-2.27-3.93L39.1,195l-14.16,8.17-2.36-4.1,21.52-12.42,2.27,3.94L37.56,208l14.11-8.15,2.36,4.1Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M144.1,273.69h-4.7V248.84h4.7Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M259.41,201.8l-2.51,4.34a16.65,16.65,0,0,1-3.56,4.71,6,6,0,0,1-3.52,1.21,7.47,7.47,0,0,1-4-1.1,6.86,6.86,0,0,1-3-3.07,7.07,7.07,0,0,1-.39-4.31l-12.51-.43,2.58-4.48,11.91.43.22-.38-9.11-5.26,2.36-4.1ZM248.63,201l-.74,1.28a5.78,5.78,0,0,0-1,3,2.22,2.22,0,0,0,1.28,1.72,2.39,2.39,0,0,0,1.44.35,2.36,2.36,0,0,0,1.32-.55,8.51,8.51,0,0,0,1.52-2.11l.65-1.12Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M251.49,68.13l2.4,4.15L245.78,77l4.15,7.18L258,79.47l2.39,4.14L238.91,96l-2.39-4.14L246,86.44l-4.15-7.18-9.43,5.45L230,80.55Z" transform="translate(-22.57 -9.31)"/></svg><!--<img src="img/shrineCircular.svg">-->
 	        	
 		</button>
 		<button id="infoPanel" class="infoPanel hidden" onclick="this.className='infoPanel hidden';">
@@ -59,19 +72,18 @@
 			<ul>
 				<li>
 					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();">
-						<span class="default"></span>
-						<span class="active"></span>
+						<svg id="imgQualLo" class="show" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icQual" fill-rule="nonzero" fill="#FFFFFF"><polygon id="Combined-Shape" points="7 6.17542648 7 0 9 0 9 6.09252271 14.3564065 3 15.3564065 4.73205081 9.92820323 7.8660254 15.3564065 11 14.3564065 12.7320508 9 9.6395281 9 16 7 16 7 9.55662433 1.5 12.7320508 0.5 11 5.92820323 7.8660254 0.5 4.73205081 1.5 3 7 6.17542648"></polygon></g></g></svg>
 					</button>
 				</li><!--
 				--><li>
 					<button id="butSound" type="button" class="sound" onClick="butSoundToggle();">
-						<span class="default"></span>
-						<span class="active"></span>						
+						<svg id="imgSoundOn" class="show" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icMute" fill-rule="nonzero" fill="#FFFFFF"><path d="M1,12 C0.44771525,12 0,11.5522847 0,11 L0,5 C0,4.44771525 0.44771525,4 1,4 L2.58578644,4 L6.29289322,0.292893219 C6.92285808,-0.337071642 8,0.109095149 8,1 L8,15 C8,15.8909049 6.92285808,16.3370716 6.29289322,15.7071068 L2.58578644,12 L1,12 Z M3,10 C3.26521649,10 3.5195704,10.1053568 3.70710678,10.2928932 L6,12.5857864 L6,3.41421356 L3.70710678,5.70710678 C3.5195704,5.89464316 3.26521649,6 3,6 L2,6 L2,10 L3,10 Z" id="Combined-Shape"></path><polygon id="Line" points="10 4 10 12 12 12 12 4"></polygon><polygon id="Line-Copy-2" points="14 2 14 14 16 14 16 2"></polygon></g></g></svg>
+						<svg id="imgSoundOff" class="hide" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icMute-Copy" fill-rule="nonzero" fill="#FFFFFF"><path d="M1,12 C0.44771525,12 0,11.5522847 0,11 L0,5 C0,4.44771525 0.44771525,4 1,4 L2.58578644,4 L6.29289322,0.292893219 C6.92285808,-0.337071642 8,0.109095149 8,1 L8,15 C8,15.8909049 6.92285808,16.3370716 6.29289322,15.7071068 L2.58578644,12 L1,12 Z M3,10 C3.26521649,10 3.5195704,10.1053568 3.70710678,10.2928932 L6,12.5857864 L6,3.41421356 L3.70710678,5.70710678 C3.5195704,5.89464316 3.26521649,6 3,6 L2,6 L2,10 L3,10 Z" id="Combined-Shape"></path><g id="Group-2" transform="translate(8.000000, 4.000000)"><polygon id="Line" transform="translate(4.000000, 4.000000) rotate(45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon><polygon id="Line-Copy" transform="translate(4.000000, 4.000000) rotate(-45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon></g></g></g></svg>					
 					</button>
 				</li><!--
 				--><li>
 					<button id="butInfo" type="button" class="info" onClick="butInfoToggle();">
-						<span class="default"></span>
+						<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icAbout" fill-rule="nonzero" fill="#FFFFFF"><path d="M8,16 C3.581722,16 0,12.418278 0,8 C0,3.581722 3.581722,0 8,0 C12.418278,0 16,3.581722 16,8 C16,12.418278 12.418278,16 8,16 Z M8,14 C11.3137085,14 14,11.3137085 14,8 C14,4.6862915 11.3137085,2 8,2 C4.6862915,2 2,4.6862915 2,8 C2,11.3137085 4.6862915,14 8,14 Z" id="Oval-2"></path></g></g></svg>
 					</button>
 				</li>
 			</ul>
@@ -386,7 +398,7 @@ function initSound()
 
 				listener = new THREE.AudioListener();
 				audioBgloop = new THREE.Audio( listener );
-				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.wav', function( buffer ) {
+				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.mp3', function( buffer ) {
 					audioBgloop.setBuffer( buffer );
 					audioBgloop.setLoop(true);
 					audioBgloop.setVolume(0);

@@ -26,7 +26,7 @@
 	   			background: transparent;
    			}
 
-			.activate img{
+			.activate svg{
 				position: absolute;
 				top: 50%;
 				left: 50%;
@@ -151,7 +151,7 @@
 			button.quality {
 				background: #666;
 				background: transparent;
-				background-image: url(img/icQual.svg);
+				/*background-image: url(img/icQual.svg);*/
 				background-repeat: no-repeat;
 				background-size: 16px 16px;
 				background-position: center; 
@@ -160,7 +160,7 @@
 			button.quality.hi {
 				background: red;
 				background: transparent;
-				background-image: url(img/icQual.svg);
+				/*background-image: url(img/icQual.svg);*/
 				background-repeat: no-repeat;
 				background-size: 16px 16px;
 				background-position: center; 
@@ -169,7 +169,7 @@
 			}
 			button.sound {
 				background: transparent;
-				background-image: url(img/icMute.svg);
+				/*background-image: url(img/icMute.svg);*/
 				background-repeat: no-repeat;
 				background-size: 16px 16px;
 				background-position: center; 
@@ -178,7 +178,7 @@
 			}
 			button.sound.muted {
 				background: transparent;
-				background-image: url(img/icMuted.svg);
+				/*background-image: url(img/icMuted.svg);*/
 				background-repeat: no-repeat;
 				background-size: 16px 16px;
 				background-position: center; 
@@ -186,7 +186,7 @@
 			}
 			button.info {
 				background: transparent;
-				background-image: url(img/icAbout.svg);
+				/*background-image: url(img/icAbout.svg);*/
 				background-repeat: no-repeat;
 				background-size: 16px 16px;
 				background-position: center; 
@@ -198,12 +198,12 @@
 				opacity: 1;
 			}
 
-			button span.active {
-				display: none;				
-			}
-			button.active span.active {
+		
+
+			.show
+			{
 				display: block;
 			}
-			button.active span.default {
+			.hide {
 				display: none;
-			}			
+			}

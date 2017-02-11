@@ -4,118 +4,236 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
-            body {
-                color: #cccccc;
-                font-family:Monospace;
-                font-size:13px;
-                text-align:center;
 
-                background-color: #fff;
-                margin: 0px;
-                overflow: hidden;
-            }
-            #shrines
-             {	position: relative;
-             	width: 100%;
-             	height: 100%;
-             	border:  100px solid white;
-             	
-             }
+           
 
             #container
              	{	position: absolute;
-             		
+             		width: 100%;
+					 height: 100%;
    					
              	}
-            #info {
-                position: absolute;
-                bottom: 0px; width: 100%;
-                padding: 5px;
-            }
-            #gui
-            {
-                position: absolute;
-	            width:40px;
-	            height: 100%;
-	            top:100;
-	          //  padding: 10px;
-	            text-align: center;
-            }
-            a {
+         
+			.activate
+			{		
+				position: absolute;
+				
+			 	cursor:pointer;
+   			   border:none;
+    		  width:100%;
+   			 height:100%;
+   			/* background-color:rgba(0, 0, 0, 0);*/
+   			background: transparent;
+   			
+			}
+			.activate img{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width:100px;
+				height: 100px;
 
-                color: #a06851;
-            }
-
-		.button {
+			}
+			.infoPanel {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				
+				width:200px;
+				height:200px;
+				text-align: center;
+				color: white;
 			
-		
-			float:left
-			top:200px;
-			margin: 10;
-			 display: inline-block;
-		    background-color: #4CAF50; /* Green */
-		    padding: 16px 16px;
-		    text-align: center;
-		    text-decoration: none;
-		  
-		    font-size: 14px;
-		    -webkit-transition-duration: 0.4s; /* Safari */
-		    transition-duration: 0.4s;
-		    cursor: pointer;
-		    background-color: transparent; 
-    		color: black; 
-   			border: 1px solid rgba(255,255,255,0.2);
-		}
+				visibility: hidden;
+				background-color: black;
 
-		
-
-		.button:hover {
-
-		 //   background-color: #4CAF50;
-			 border: 1px solid rgba(255,255,255,0.6);
-		    color: rgba(255,255,255,0.6);
-		}
+			}
+			.infoPanel div {
+				position: absolute;
+				top: 50%;
+				left: 0;
+				transform: translateY(-50%);
+			  	text-align: center;
+			}
+			.loadingBar{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width:60px;
+				height: 5px;
+				background: white;
+				//transition: width 0.1s;
+				//-webkit-transition: width 0.1s;
+			}
 
 
+			html, body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				background: black;
+				position: relative;
+			}
+			.shrines {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+			}
+			.gui {
+				position: absolute;
+				bottom: 20px;
+				left: 20px;
+				right: 20px;
+				text-align: center;
+				visibility: hidden;
+				
+			}
+			.gui ul {
+				border: 1px white solid;
+				display: inline-block;
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+			.gui li {
+				display: inline-block;
+				border-right: 1px #fff solid;
+			}
+			.gui li:last-child {
+				border: none;
+			}
+			.gui button {
+				display: inline-block;
+				text-align: center;
+				border: 0;
+				width: 40px;
+				height: 40px;
+				overflow: hidden;
+				cursor: pointer;
+			}
 
+			button.quality {
+				background: #666;
+				background: transparent;
+				background-image: url(img/icQual.svg);
+				background-repeat: no-repeat;
+				background-size: 16px 16px;
+				background-position: center; 
+			}
+			button.quality.hi {
+				background: red;
+				background: transparent;
+				background-image: url(img/icQual.svg);
+				background-repeat: no-repeat;
+				background-size: 16px 16px;
+				background-position: center; 
+
+			}
+			button.sound {
+				background: transparent;
+				background-image: url(img/icMute.svg);
+				background-repeat: no-repeat;
+				background-size: 16px 16px;
+				background-position: center; 
+
+			}
+			button.sound.muted {
+				background: transparent;
+				background-image: url(img/icMuted.svg);
+				background-repeat: no-repeat;
+				background-size: 16px 16px;
+				background-position: center; 
+			}
+			button.info {
+				background: transparent;
+				background-image: url(img/icAbout.svg);
+				background-repeat: no-repeat;
+				background-size: 16px 16px;
+				background-position: center; 
+
+			}
+			button.sound:hover, button.quality:hover{
+				background: blue;
+			}
+
+			button span.active {
+				display: none;				
+			}
+			button.active span.active {
+				display: block;
+			}
+			button.active span.default {
+				display: none;
+			}			
         </style>
     </head>
     <body>
-    <div id="shrines">
-		<div id="info">shrines</div>
-        <div id="container"><br /><br /><br /><br /><br />Loading...</div>
-    	<div id="gui">
-			<input type="button" value="Q" class="button" onClick="toggleQuality();"></input>
-			<input type="button" value="R" class="button" onClick="prepareReset();"></input>
+    <script type="text/javascript">
+    function butQualityToggle()
+	  { toggleQuality();
+	  	if (ENABLESHADOWS) 	document.getElementById("butQuality").className = "quality hi";
+	  	else document.getElementById("butQuality").className = "quality";
+	  	console.log("ya"+document.getElementById("butQuality"));
+	  }
+	 function butSoundToggle()
+	  { toggleSound();
+	  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
+	  	else document.getElementById("butSound").className = "sound";
+	 // 	console.log("ya"+document.getElementById("butSound"));
+	  }
+
+	 function butActivate()
+	 {
+	 	freezeSimulation(false);
+	 	document.getElementById("gui").style.visibility='visible';
+	 }
+    </script>
+
+    <div class="shrines">
+        <div id="container" class="container"></div>
+        <button class="activate" onclick="butActivate();this.style.visibility='hidden';">
+        <div id="loadingBar" class="loadingBar"></div>
+        	<img src="img/shrineCircular.svg" />
+        	
+		</button>
+		<div id="infoPanel" class="infoPanel"><div>Shrine by <a href="http://depart.at">depart</a><br><br>there will always be beginnings</div></div>
+		<div class="gui" id="gui">
 			
-		</div>
+			<ul>
+				<li>
+					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();">
+						<span class="default"></span>
+						<span class="active"></span>
+					</button>
+				</li><!--
+				--><li>
+					<button id="butSound" type="button" class="sound" onClick="butSoundToggle();">
+						<span class="default"></span>
+						<span class="active"></span>						
+					</button>
+				</li><!--
+				--><li>
+					<button id="butInfo" type="button" class="info" onClick="loadLocation();">
+						<span class="default"></span>
+					</button>
+				</li>
+			</ul>
+</div>
 	</div>   
 
 
 
-	<!--<script type="text/javascript" src="../js/libs/physi.js"></script>-->
     	<script type="text/javascript" src="lib/three/build/three.min.js"></script>  
-    	<script src="lib/timbre.js"></script>
-		<script src="lib/jsmad.js"></script>
-		<script src="lib/mp3_decode.js"></script>
-
-		<script>
-		//  T("sin", {freq:880, mul:0.5}).play();
-		</script>
-	
     	<script type="text/javascript" src="lib/three/examples/js/controls/OrbitControls.js"></script>
     	<script type="text/javascript" src="lib/three/examples/js/libs/stats.min.js"></script>
 	 	<script type="text/javascript" src="lib/physi/physi.js"></script>
-		
-		
-		
-		<!--<script src='lib/three/examples/js/libs/dat.gui.min.js'></script>-->
-
 	    <script src="lib/three/examples/js/Detector.js"></script>
-		<script src="objectCreators.js"></script>
-		
-	   <!-- <script type="text/javascript" src="https://l2.io/ip.js?var=userip"></script>-->
-	 
 		<script src="objectCreators.js"></script>
 
         <script type="text/javascript">
@@ -131,24 +249,25 @@
 		}
 
 		
-		var SIMULATE=false;   
+		var SIMULATE=false;   //physics simulation running?
 		var ACTIVATED=false; // initially the scene is paused and needs to be clicked once to start
-        var WORLDSCALE=40; //40
-        var LOWQUALITY=false;
-        var ANTIALIAS=true;
-        var ENABLESHADOWS=false;
-        var COLLAPSETIME=26;		//time to restart the scence in seconds
-        var SOUNDINITIALIZED=true; 
-        
-        var countdown=COLLAPSETIME;
-        
-        var frm=0;
+        var WORLDSCALE=40; //40  -- scale the whole world for slow-motion feeling
+        var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
+        var ENABLESHADOWS=false;	//initial state of shadows, can be changed at runtime
+        var COLLAPSETIME=40;		//time to restart the scence in seconds
+        var MUTED=false;		// sound muted, changed at runtime
+        var DEBUG=true;		//display stats
 
-        var timestep=1/1000;
-        var id;
+
+        var countdown=COLLAPSETIME;	// the countdown to the next restart
+        
+        var frm=0;					// frame counter, for rendering the physics engine only every 2nd frame
+
+       // var timestep=1/1000;		// not really used anymore
+        
 		// Graphics variables
 		var container, stats, physics_stats;
-		var camera, controls, scene, scene_physi, renderer,skybox;
+		var camera, controls, scene_physi, renderer,skybox;
 		var textureLoader;
 		var tGlobalLightInt=1; //target light intensity, for animating light intensity
 		var cGlobalLightInt=1;
@@ -162,14 +281,13 @@
 	    var layoutTables=[];
 	    var removeableBodies=[];
 		
-        var initWorld, render, _boxes = [], spawnBox, loader,
-		render_stats, physics_stats, scene, ground_material, physi_ground, light;
+        var physi_ground;
 		var light1,light2,light3;
 		var light1PulseAng=0,light2PulseAng=0,light3PulseAng=0;
 		var screenLight;
 		
-
-
+		var ground_material;
+		var lineMaterial;
 		var skyBoxMaterial;
 		var cubeMaterial;
 		var cubeMaterialDull;
@@ -186,12 +304,16 @@
         var canvas, context, tex_canvas;
 
         // SOUND ------ 
-          var audio1, osc1, osc1_1, osc2,osc2_1,osc3, osc3_1;
+        
+        var bgloop, audioBgloop, freeze, audioFreezeloop, rumba, audioRumba, rainrumba, audioRainrumba;
         var snd_osc1_1,snd_osc2_1,snd_osc3_1, audioOsc1_1,audioOsc2_1,audioOsc3_1 , listener;
 		var snd_osc1_2,snd_osc2_2,snd_osc3_2, audioOsc1_2,audioOsc2_2,audioOsc3_2;
 		var snd_Frosc1_1,snd_Frosc2_1,snd_Frosc3_1, audioFrOsc1_1,audioFrOsc2_1,audioFrOsc3_1;
 		var snd_Frosc1_2,snd_Frosc2_2,snd_Frosc3_2, audioFrOsc1_2,audioFrOsc2_2,audioFrOsc3_2;
-		var bgloop, audioBgloop, freeze, audioFreezeloop, rumba, audioRumba, rainrumba, audioRainrumba;
+		var audioBassic1,audioBassic2,audioBassic3,audioKling;
+		var audioBassic1_1,audioBassic2_1,audioBassic3_1;
+		var snd_Bassic1,snd_Bassic2,snd_Bassic3,snd_Kling;
+		var snd_Bassic1_1,snd_Bassic2_1,snd_Bassic3_1;
 
 
         // 10x10 grid to keep track of height levels 
@@ -226,35 +348,16 @@ function reset()
       {
       	scene_physi.remove(removeableBodies[i]);
       	renderer.dispose( physiBodies[i] );
-      	console.log("remobv");
       }
       
       removeableBodies = [];
 
       countdown=COLLAPSETIME;
-	  	light1PulseAng=0;
-		light2PulseAng=0;
-		light3PulseAng=0;
-
-
+	  light1PulseAng=0;
+	  light2PulseAng=0;
+	  light3PulseAng=0;
 
       createRemoveableBodies();
-      
-/*      
-      scene_physi.children.forEach(function(obj){
-   		 console.log("remobv"+obj);
-   		 scene_physi.remove(obj);
-		 renderer.deallocateObject( obj );
-
-		});
-*/
-     //createObjects();
-      /*
-      manageLoading();
-      initWorld();
-      */
-      //initWorld();
-
       setTimeout(function() {resetInterval=setInterval(afterResetTO,25)}, 200);
       setTimeout(function() {SIMULATE=true}, 5000);
 
@@ -263,98 +366,54 @@ function reset()
 
 function initSound()
   {	
-
-
-
 	camera.add( listener );
 	audioFreezeloop.setVolume(0);
 	audioBgloop.setVolume(0);
 	audioRainrumba.setVolume(0);
 	audioRumba.setVolume(0);
-	audioOsc1_1.stop();
-	audioOsc1_2.stop();
-	audioOsc2_1.stop();
-	audioOsc2_2.stop();
-	audioOsc3_1.stop();
-	audioOsc3_2.stop();
-	audioFrOsc1_1.stop();
-	audioFrOsc1_2.stop();
-	audioFrOsc2_1.stop();
-	audioFrOsc2_2.stop();
-	audioFrOsc3_1.stop();
-	audioFrOsc3_2.stop();
-	
-	audioFrOsc1_1.setVolume(0);
-	 audioFrOsc2_1.setVolume(0);
-	 audioFrOsc3_1.setVolume(0);
+	if (audioBassic1.isPlaying) audioBassic1.stop();
+	if (audioBassic2.isPlaying) audioBassic2.stop();
+	if (audioBassic3.isPlaying) audioBassic3.stop();
 
-	 audioFrOsc1_2.setVolume(0);
-	 audioFrOsc2_2.setVolume(0);
-	 audioFrOsc3_2.setVolume(0);
-	 SOUNDINITIALIZED=true;
-  }
-
-
-
-function resetLayoutTables()
-  {
-  	for(var i=0;i<layoutTables.length;i++)
-  	{
-  		var y=600;
-  		resetObject(layoutTables[i].leg1,0,y,0);
-  		resetObject(layoutTables[i].leg2,0,y,0);
-  		resetObject(layoutTables[i].leg3,0,y,0);
-  		resetObject(layoutTables[i].leg4,0,y,0);
-  		resetObject(layoutTables[i].top,0,y+100,0);
-
-  	}
-  }
-
-function resetObject(obj,sx,sy,sz,mass,pos)
-  {
-  	obj.position.y=500;
-  	obj.__dirtyPosition=true;
-  	obj.rotation.set(0,0,0);
-  	obj.__dirtyRotation=true;
-  	obj.setLinearVelocity(new THREE.Vector3( 0, 0, 0 ));
-  	obj.setAngularVelocity(new THREE.Vector3( 0, 0, 0 ));
-  
-  }
-
-function prepareReset()
-	{	SIMULATE=false;
-		tGlobalLightInt=-0.5;
-		resetting=true;
-		clearInterval(resetInterval);
-		resetInterval=setInterval(prepareResetTO,25);
+	if (audioBassic1_1.isPlaying) audioBassic1_1.stop();
+	if (audioBassic2_1.isPlaying) audioBassic2_1.stop();
+	if (audioBassic3_1.isPlaying) audioBassic3_1.stop();
 		
 
-	}
-function prepareResetTO()
-	{	//scene_physi.background.transparent=true;
-		//scene_physi.background.opacity=0
-		//skybox.material.opacity=0;
-		skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
-		;
-		if (light1.intensity<=0) 
-			{clearInterval(resetInterval)
-			 reset();
-			}
-	}
-function afterResetTO()
-   {skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
-   
-   // console.log("after reset");
-   // clock.stop();clock.start(); // resets the elapsed time to 0
-   	tGlobalLightInt=1;
-   	if (light1.intensity>=0.9) 
-			{clearInterval(resetInterval)
-			 skyBoxMaterial.uniforms.opacity= { type: "f", value: 1  };
-			 resetting=false;
-			}
-   	
+	audioFrOsc1_1.setVolume(0);
+	audioFrOsc2_1.setVolume(0);
+	audioFrOsc3_1.setVolume(0);
 
-   }
+	audioFrOsc1_2.setVolume(0);
+	audioFrOsc2_2.setVolume(0);
+	audioFrOsc3_2.setVolume(0);
+
+	audioOsc1_1.setVolume(0);
+	audioOsc2_1.setVolume(0);
+	audioOsc3_1.setVolume(0);
+
+	audioOsc1_2.setVolume(0);
+	audioOsc2_2.setVolume(0);
+	audioOsc3_2.setVolume(0);
+
+	if (audioOsc1_1.isPlaying) audioOsc1_1.stop();
+	if (audioOsc1_2.isPlaying) audioOsc1_2.stop();
+	if (audioOsc2_1.isPlaying) audioOsc2_1.stop();
+	if (audioOsc2_2.isPlaying) audioOsc2_2.stop();
+	if (audioOsc3_1.isPlaying) audioOsc3_1.stop();
+	if (audioOsc3_2.isPlaying) audioOsc3_2.stop();
+	if (audioOsc1_1.isPlaying) audioFrOsc1_1.stop();
+	if (audioOsc1_2.isPlaying) audioFrOsc1_2.stop();
+	if (audioOsc2_1.isPlaying) audioFrOsc2_1.stop();
+	if (audioOsc2_2.isPlaying) audioFrOsc2_2.stop();
+	if (audioOsc3_1.isPlaying) audioFrOsc3_1.stop();
+	if (audioOsc3_2.isPlaying) audioFrOsc3_2.stop();
+
+	
+	 
+  }
+
+
 		
 		function initCamera()
 		 { // CAMERA
@@ -376,6 +435,7 @@ function afterResetTO()
 			controls.minDistance = 10*WORLDSCALE;
 			controls.maxDistance = 25*WORLDSCALE;
 			controls.momentumScalingFactor=0.00001;
+			scene_physi.add(camera); // only necessary because the skybox is CHILD of the cam
 
 		 }
 
@@ -451,18 +511,7 @@ function afterResetTO()
                 light3.shadow.camera.left = -d; light3.shadow.camera.right = d;	light3.shadow.camera.top = d;	light3.shadow.camera.bottom = -d;
     		    light3.shadow.camera.near = 2;  light3.shadow.camera.far = 100*WORLDSCALE;
 				scene_physi.add( light3 );
-				/*
-				var width = 10*WORLDSCALE;
-				var height = 10*WORLDSCALE;
-				rectLight = new THREE.RectAreaLight( 0xff0000, undefined,  width, height );
-				rectLight.matrixAutoUpdate = true;
-				rectLight.intensity = 70.0;
-				rectLight.position.set( 0, 5, 0 );
-			    rectLightHelper = new THREE.RectAreaLightHelper( rectLight );
-				rectLight.add( rectLightHelper );
-		
-				scene_physi.add(rectLight)
-				*/
+				
 		}
 
 		function manageLoading()
@@ -486,46 +535,38 @@ function afterResetTO()
 
 				listener = new THREE.AudioListener();
 				audioBgloop = new THREE.Audio( listener );
-				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.ogg', function( buffer ) {
+				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.wav', function( buffer ) {
 					audioBgloop.setBuffer( buffer );
 					audioBgloop.setLoop(true);
 					audioBgloop.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+					
 					audioBgloop.play();
 				});
 
 						audioFreezeloop = new THREE.Audio( listener );
-				freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.ogg', function( buffer ) {
+				freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.mp3', function( buffer ) {
 					audioFreezeloop.setBuffer( buffer );
 					audioFreezeloop.setLoop(true);
 					audioFreezeloop.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+					
 					audioFreezeloop.play();
 				});
 			
 				audioRumba = new THREE.Audio( listener );
-				rumba = new THREE.AudioLoader().load( 'snd/rumba.ogg', function( buffer ) {
+				rumba = new THREE.AudioLoader().load( 'snd/rumba.mp3', function( buffer ) {
 					audioRumba.setBuffer( buffer );
 					audioRumba.setLoop(true);
 					audioRumba.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+			
 					audioRumba.play();
 				});
 
 				audioRainrumba = new THREE.Audio( listener );
-				rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.ogg', function( buffer ) {
+				rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.mp3', function( buffer ) {
 					audioRainrumba.setBuffer( buffer );
 					audioRainrumba.setLoop(true);
 					audioRainrumba.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+					
 					audioRainrumba.play();
 				});
 
@@ -533,10 +574,8 @@ function afterResetTO()
 				snd_osc1_1 = new THREE.AudioLoader().load( 'snd/sph_3_1.wav', function( buffer ) {
 					audioOsc1_1.setBuffer( buffer );
 					audioOsc1_1.setLoop(true);
-					audioOsc1_1.setVolume(0.1);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+					audioOsc1_1.setVolume(0);
+					
 					audioOsc1_1.play();
 				});
 				//listener = new THREE.AudioListener();
@@ -565,9 +604,7 @@ function afterResetTO()
 					audioOsc1_2.setBuffer( buffer );
 					audioOsc1_2.setLoop(true);
 					audioOsc1_2.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+					
 					audioOsc1_2.play();
 				});
 				//listener = new THREE.AudioListener();
@@ -596,9 +633,7 @@ function afterResetTO()
 					audioFrOsc1_1.setBuffer( buffer );
 					audioFrOsc1_1.setLoop(true);
 					audioFrOsc1_1.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+					
 					audioFrOsc1_1.play();
 				});
 				//listener = new THREE.AudioListener();
@@ -627,9 +662,7 @@ function afterResetTO()
 					audioFrOsc1_2.setBuffer( buffer );
 					audioFrOsc1_2.setLoop(true);
 					audioFrOsc1_2.setVolume(0);
-					//audioOsc1.setRefDistanc(0.1);
-					//audioOsc1.setMaxDistance(1000);
-					//audioOsc1.setRolloffFactor(1);
+				
 					audioFrOsc1_2.play();
 				});
 				//listener = new THREE.AudioListener();
@@ -654,9 +687,59 @@ function afterResetTO()
 				});
 				
 
+				//listener = new THREE.AudioListener();
+				audioBassic1 = new THREE.Audio( listener );
+				snd_Bassic1 = new THREE.AudioLoader().load( 'snd/bassic_1.mp3', function( buffer ) {
+					audioBassic1.setBuffer( buffer );
+					audioBassic1.setLoop(false);
+					audioBassic1.setVolume(0);
+					audioBassic1.play();
+				});
+				audioBassic2 = new THREE.Audio( listener );
+				snd_Bassic2 = new THREE.AudioLoader().load( 'snd/bassic_2.mp3', function( buffer ) {
+					audioBassic2.setBuffer( buffer );
+					audioBassic2.setLoop(false);
+					audioBassic2.setVolume(0);
+					audioBassic2.play();
+				});
+				audioBassic3 = new THREE.Audio( listener );
+				snd_Bassic3 = new THREE.AudioLoader().load( 'snd/bassic_3.mp3', function( buffer ) {
+					audioBassic3.setBuffer( buffer );
+					audioBassic3.setLoop(false);
+					audioBassic3.setVolume(0);
+					audioBassic3.play();
+				});
 
+				audioBassic1_1 = new THREE.Audio( listener );
+				snd_Bassic1_1 = new THREE.AudioLoader().load( 'snd/bassic_4.mp3', function( buffer ) {
+					audioBassic1_1.setBuffer( buffer );
+					audioBassic1_1.setLoop(false);
+					audioBassic1_1.setVolume(0);
+					audioBassic1_1.play();
+				});
+				audioBassic2_1 = new THREE.Audio( listener );
+				snd_Bassic2_1 = new THREE.AudioLoader().load( 'snd/bassic_5.mp3', function( buffer ) {
+					audioBassic2_1.setBuffer( buffer );
+					audioBassic2_1.setLoop(false);
+					audioBassic2_1.setVolume(0);
+					audioBassic2_1.play();
+				});
+				audioBassic3_1 = new THREE.Audio( listener );
+				snd_Bassic3_1 = new THREE.AudioLoader().load( 'snd/bassic_6.mp3', function( buffer ) {
+					audioBassic3_1.setBuffer( buffer );
+					audioBassic3_1.setLoop(false);
+					audioBassic3_1.setVolume(0);
+					audioBassic3_1.play();
+				});
 
-
+				//listener = new THREE.AudioListener();
+				audioKling = new THREE.Audio( listener );
+				snd_Kling = new THREE.AudioLoader().load( 'snd/klingeling.mp3', function( buffer ) {
+					audioKling.setBuffer( buffer );
+					audioKling.setLoop(true);
+					audioKling.setVolume(0);
+					audioKling.play();
+				});
 
 
 				//---------------------------------------------------------------------------
@@ -665,14 +748,14 @@ function afterResetTO()
 
 				THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
 
-				//console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+				console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
 
 				};
 
 				THREE.DefaultLoadingManager.onLoad = function ( ) {
 
-					console.log( 'Loading Complete!');
-					initWorld();
+					console.log( 'Loading Complete!'); 
+					setTimeout(initWorld,100);  // otherwise the sound loader produces an error (because the file seems to be not there yet)
 					
 
 				};
@@ -680,7 +763,9 @@ function afterResetTO()
 
 				THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 
-				//	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+					console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+				//var el=document.getElementById("loadingBar");
+				document.getElementById("loadingBar").style.width=(1-itemsLoaded/itemsTotal)*60;
 
 				};
 
@@ -691,6 +776,46 @@ function afterResetTO()
 				}
 				
 			}
+
+
+		// RESTARTING -----------------------------------------------
+
+		function prepareReset()
+			{//	SIMULATE=false;
+				freezeSimulation(true);
+				tGlobalLightInt=-0.5;
+				resetting=true;
+				clearInterval(resetInterval);
+				resetInterval=setInterval(prepareResetTO,25);
+				
+
+			}
+		function prepareResetTO()
+			{	//scene_physi.background.transparent=true;
+				//scene_physi.background.opacity=0
+				//skybox.material.opacity=0;
+				skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
+				;
+				if (light1.intensity<=0) 
+					{clearInterval(resetInterval)
+					 reset();
+					}
+			}
+		function afterResetTO()
+		   {skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
+		    freezeSimulation(false);
+		  
+		   	tGlobalLightInt=1;
+		   	if (light1.intensity>=0.9) 
+					{clearInterval(resetInterval)
+					 skyBoxMaterial.uniforms.opacity= { type: "f", value: 1  };
+					 resetting=false;
+					}
+		   	
+
+		   }
+
+
 
 		function updateTexCanvas()
 		  {	
@@ -733,18 +858,21 @@ function afterResetTO()
    			tex_canvas.repeatS
    			tex_canvas.needsUpdate=true;
    		//	tex_canvas.minFilter=THREE.NearestMipMapLinearFilter;
+   			lineMaterial=new THREE.LineBasicMaterial({color:0xffffff});//( color, linewidth, linecap, linejoin, vertexColors );
 
 			if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
 				{
  					ENABLESHADOWS=false;
  					ANTIALIAS=false;
 				}
+
+				scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/90 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
 			
            	initCamera();
            	initRenderer();
            	initSound();
             //SCENE Physi
-            scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/120 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
+            
             scene_physi.setGravity(new THREE.Vector3( 0, -10, 0 ));
             scene_physi.addEventListener(
                 'update',
@@ -753,7 +881,7 @@ function afterResetTO()
                     
 						
 					//	if (SIMULATE) scene_physi.simulate(timestep, 0.5 ); //timestep, maxsteps
-                    physics_stats.update();
+                    if (DEBUG) physics_stats.update();
 				   
                 }
             );
@@ -761,14 +889,15 @@ function afterResetTO()
             
             initLights();
 
-
+            /*
 			// REFLECTION -------------------------------------------------------
 			tex_reflectionCube.format = THREE.RGBFormat;
 			tex_reflectionCube.minFilter = THREE.LinearFilter;
 				
 			cubeMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, envMap: tex_reflectionCube, combine: THREE.MixOperation, reflectivity: 0.6 } );
 			cubeMaterialDull= new THREE.MeshPhongMaterial( { color: 0xffffff, envMap: tex_reflectionCube,  combine: THREE.MixOperation,reflectivity: 0.1 } );
-			
+			*/
+
 			// skybox-------------------------------------------------------
 			var skyboxShader = THREE.ShaderLib['cube'];
 			skyBoxMaterial = new THREE.ShaderMaterial( {
@@ -786,15 +915,13 @@ function afterResetTO()
 			   
 			});
 		
-			//skyBoxMaterial.color=new THREE.Color( 0x000 );;
-			//skyBoxMaterial.uniforms.color= { type: "c", value: { r:1, g:1, b:1 } };
-			//skyBoxMaterial.uniforms.opacity= { type: "f", value: 0  };
+		
 			skybox = new THREE.Mesh(
 			    new THREE.CubeGeometry(60*WORLDSCALE,60*WORLDSCALE,60*WORLDSCALE),
 			    skyBoxMaterial
 			);
 
-			scene_physi.add(skybox);
+			camera.add(skybox);
 
 
 			// create ground plane ------------------------------------------------------
@@ -814,7 +941,7 @@ function afterResetTO()
                 ground_material,
                 0 // mass
                 );
-           // physi_ground.visible=false;
+           
             physi_ground.position.set(0, -0.5,0);// y=-0.55
             physi_ground.receiveShadow = false;
             scene_physi.add( physi_ground );
@@ -825,13 +952,16 @@ function afterResetTO()
 
 
 			window.addEventListener( 'resize', onWindowResize, false );
-            id=requestAnimationFrame( render );
-	        scene_physi.simulate();
+            requestAnimationFrame( render );
+	        //scene_physi.simulate();
 		    
+		    container.innerHTML = "";
+			container.appendChild( renderer.domElement );
             
             // STATS
-            container.innerHTML = "";
-			container.appendChild( renderer.domElement );
+            if (DEBUG)
+            {
+           
 
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
@@ -843,7 +973,7 @@ function afterResetTO()
 			physics_stats.domElement.style.top = '50px';
 			physics_stats.domElement.style.zIndex = 100;
 			container.appendChild( physics_stats.domElement );
-
+			}
 
 			initInput();
 
@@ -858,56 +988,7 @@ function afterResetTO()
 	
 
 
-    function handleCollision( collided_with, linearVelocity, angularVelocity ) 
-		{ 
-			   this.lastCollision=clock.getElapsedTime();
-			    
-				if (linearVelocity.lengthSq()>1.0 )
-				 {//this.material.color.setHex(0xff0000);
-				 // if (this._hasCollided) this.material.color.setHex(0xff00ff);
-				  this.lastCollision=clock.getElapsedTime();
- 
-				 }
-			//	 else this.material.color.setHex(0xffffff);
-				 
-				 /*
-				switch ( ++this.collisions ) {
-                   
-                   case 0:
-						this.material.color.setHex(0xffffff);
-                        console.log("sdfsdf");
-						break;
-					
-					case 1:
-						this.material.color.setHex(0xff0000);
-                        console.log("sdfsdf");
-						break;
-					
-					case 2:
-						this.material.color.setHex(0x00ff00);
-						break;
-					
-					case 3:
-						this.material.color.setHex(0x0000ff);
-						break;
-					
-					case 4:
-						this.material.color.setHex(0x99bb55);
-						break;
-					
-					case 5:
-						this.material.color.setHex(0x88cc55);
-						break;
-					
-					case 6:
-						this.material.color.setHex(0x77dd55);
-						break;
-				}
-				*/
-			}
-
     
-
 
 	
 	function updateLayoutHeights(x,y ,w,h, value) // all integers 0...9
@@ -967,22 +1048,10 @@ function afterResetTO()
 					.3 // low restitution
 				);
 
-			//createPillar();
-            createPlinth();
-            /*
-            createFetish(5,3,4,5);
-            createFetish(6,4,2,8);
-            createFetish(4,5,2,16);
-            createFetish(2,3,2,10);
-            */
-            createScreen(9/4,16/4,6);
-            
-            //createFetish(6,3,4,12);
-         //   createLayoutTable(0,2, 4,3, 4);//(gridx,gridy, gridw,gridh, level); 
-		//	createLayoutTable(3,4, 3,5, 5);//(gridx,gridy, gridw,gridh, level); 
-		//	createLayoutTable(2,3, 2,2, 6);//(gridx,gridy, gridw,gridh, level); 
 			
-		//	 createAura();
+            createPlinth();
+            createScreen(9/4,16/4,6);
+            //	 createAura();
 		}
 	function createRemoveableBodies()
 	    {
@@ -1003,7 +1072,7 @@ function afterResetTO()
 				    // Q
 				    case 81:
 				    //resetLayoutTables();
- 					prepareReset();
+ 					toogleSound();
 					//reset();
 				    break;
 
@@ -1027,7 +1096,7 @@ function afterResetTO()
 				    break;
 
 				    case 68://D
-				      timestep=1/5.0;
+				     // timestep=1/5.0;
 					
 				    break;
 			    }
@@ -1040,10 +1109,10 @@ function afterResetTO()
 
 		    }, false );
 
-		    window.addEventListener( 'mousedown', function( event ) {
+		    document.getElementById("container").addEventListener( 'mousedown', function( event ) {
 		    	if(!resetting) freezeSimulation(true);
 		    }, false );
-		    window.addEventListener( 'mouseup', function( event ) {
+		    document.getElementById("container").addEventListener( 'mouseup', function( event ) {
 		    	if(!resetting) freezeSimulation(false);
 		    }, false );
 
@@ -1057,14 +1126,15 @@ function afterResetTO()
 		//	renderer.setSize( window.innerWidth, window.innerHeight );
 			// Resize renderTargets
 				//ssaoPass.uniforms[ 'size' ].value.set( width, height );
-				var width=window.innerWidth;
-				var height=window.innerHeight;
+				var el=document.getElementById("container");
+				var width=el.offsetWidth;//window.innerWidth;
+				var height=el.offsetHeight;//window.innerHeight;
 				var pixelRatio = renderer.getPixelRatio();
 				var newWidth  = Math.floor( width / pixelRatio ) || 1;
 				var newHeight = Math.floor( height / pixelRatio ) || 1;
 				//depthRenderTarget.setSize( newWidth, newHeight );
 				//effectComposer.setSize( newWidth, newHeight );
-				renderer.setSize( width-200, height-200 );
+				renderer.setSize( width, height);
 
 
 		}
@@ -1087,58 +1157,52 @@ function afterResetTO()
 	function render() 
         {	var delta=clock.getDelta();
           // console.log(physiBodies.length);
-          updateTexCanvas();
+         
           frm++;
           
-            if (SIMULATE && frm%2==0) 
+            if (SIMULATE && frm%1==0) 
             	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
            		 countdown-=delta;
            		}
             if (countdown<=0 && !resetting) 
-            	{
-            	prepareReset();
-            	console.log("prepare reset");
+            	{prepareReset();
+            	 //console.log("prepare reset");
             	}
-
-         //   	console.log(countdown +"  "+resetting);
-
-            // color if in collision
-            /*
-			for ( var j = 0; j<physiBodies.length; j++ ) 
-				{ 
-                    var pobj = physiBodies[j];
-                    var t=clock.getElapsedTime();
-                    
-                    if ((t-pobj.lastCollision) > 0.1)
-                        {
-                            pobj.material.color.setHex(0xffffff);
-                        }
-                    else
-                        {
-                            pobj.material.color.setHex(0xff00ff);
-                        }
-				}
-            */
-
-          //  rectLightHelper.update(); // required
-
-        	
-			controls.update(delta );
+           	
+        	controls.update(delta );
 			animateLights(delta);
+			updateTexCanvas();
 			/*
             skybox.position.x=camera.position.x;
 		    skybox.position.y=camera.position.y;
 		    skybox.position.z=camera.position.z;
 		    */
-			stats.update();
-			
+			if (DEBUG) stats.update();
+/*
+			for (var i=0;i<layoutTables.length;i++)
+			{
+				
+				var v=new THREE.Vector3(0,160,0);
+				//v.copy(layoutTables[i].top.position);
+				//v.sub(layoutTables[i].leg1.position);
+				//scene_physi.update();
+				
+				var nv=layoutTables[i].leg1.worldToLocal(v);
+				layoutTables[i].leg1._geomLine.dynamic = true;
+				layoutTables[i].leg1._geomLine.vertices[1].x=nv.x;
+				layoutTables[i].leg1._geomLine.vertices[1].y=nv.y;
+				layoutTables[i].leg1._geomLine.vertices[1].z=nv.z;
+				//layoutTables[i].leg1._geomLine.vertices[0]=new THREE.Vector3(0,0,0);
+				//layoutTables[i].leg1._geomLine.__dirtyVertices = true;
+				layoutTables[i].leg1._geomLine.verticesNeedUpdate = true;
+				if (i==1) console.log(layoutTables[i].leg1.worldToLocal(v));
+			//	layoutTables[i].leg1._geomLine.vertices[1].y=layoutTables[i].leg2.position.y-layoutTables[i].leg1.position.y;
+			//		layoutTables[i].leg1._geomLine.vertices[1].z=layoutTables[i].leg2.position.z-layoutTables[i].leg1.position.z;
+
+			}
+			*/
             renderer.render( scene_physi, camera );
-            
-		  
-		   
-
-
-		   requestAnimationFrame( render );
+            requestAnimationFrame( render );
 			
 		}
 
@@ -1156,7 +1220,38 @@ function afterResetTO()
       	//scene_physi.antialias=ENABLESHADOWS;
       }
 
-   
+   function toggleSound()
+     {MUTED=!MUTED;
+     	if (MUTED)
+     	{
+     		audioFreezeloop.setVolume(0);
+			audioBgloop.setVolume(0);
+			audioRainrumba.setVolume(0);
+			audioRumba.setVolume(0);
+
+			audioFrOsc1_1.setVolume(0);
+			audioFrOsc2_1.setVolume(0);
+			audioFrOsc3_1.setVolume(0);
+
+			audioFrOsc1_2.setVolume(0);
+			audioFrOsc2_2.setVolume(0);
+			audioFrOsc3_2.setVolume(0);
+
+			audioOsc1_1.setVolume(0);
+			audioOsc2_1.setVolume(0);
+			audioOsc3_1.setVolume(0);
+
+			audioOsc1_2.setVolume(0);
+			audioOsc2_2.setVolume(0);
+			audioOsc3_2.setVolume(0);
+
+			audioBassic1.setVolume(0);
+			audioKling.setVolume(0);
+     	}
+     else 
+     	freezeSimulation(!SIMULATE);
+
+     }
 
 	function animateLights(delta)
         {   
@@ -1174,11 +1269,11 @@ function afterResetTO()
             var l3y=Math.sin( t * 0.5 +2*os );
 
             if (SIMULATE)
-            {
-            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
-            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
-            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
-            }
+	            {
+	            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
+	            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
+	            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
+	            }
             
             var l1Int= (((Math.sin(light1PulseAng)+1)/2)+0.1 ) ;
 
@@ -1209,16 +1304,22 @@ function afterResetTO()
             light3.position.z+=(l3z-light3.position.z)/5.0;
 
             cGlobalLightInt+=(tGlobalLightInt-cGlobalLightInt)/60;
-            var intMult=1.4;
+            var intMult=1.0;
             if (!ACTIVATED) intMult=0.1;
-
-            light1.intensity=cGlobalLightInt*l1Int*intMult;
-            light2.intensity=cGlobalLightInt*l2Int*intMult;
-            light3.intensity=cGlobalLightInt*l3Int*intMult;
+            // blinking at top and bottom positions
+            var l1IntOs=0,l2IntOs=0,l3IntOs=0;
+            if (!resetting && ACTIVATED)
+	            {if(Math.abs(l1y)>0.99) l1IntOs=2;
+	            if(Math.abs(l2y)>0.99) l2IntOs=2;
+	            if(Math.abs(l3y)>0.99) l3IntOs=2;
+	        	}
+            light1.intensity=cGlobalLightInt*l1Int*intMult+l1IntOs;
+            light2.intensity=cGlobalLightInt*l2Int*intMult+l2IntOs;
+            light3.intensity=cGlobalLightInt*l3Int*intMult+l3IntOs;
             
-            light1.obj.material.opacity=(cGlobalLightInt*l1Int);
-            light2.obj.material.opacity=(cGlobalLightInt*l2Int);
-            light3.obj.material.opacity=(cGlobalLightInt*l3Int);
+            light1.obj.material.opacity=(cGlobalLightInt*l1Int)+l1IntOs;
+            light2.obj.material.opacity=(cGlobalLightInt*l2Int)+l2IntOs;
+            light3.obj.material.opacity=(cGlobalLightInt*l3Int)+l3IntOs;
 
             var h=0;
             screenLight.intensity=  (countdown/COLLAPSETIME)*cGlobalLightInt;//Math.sin(t*0.025)/2+0.5;
@@ -1243,32 +1344,82 @@ function afterResetTO()
            	// SOUND _-----------------------------------------------
 
 
-           	if (ACTIVATED)
-           	{
+           	if (ACTIVATED && !MUTED)
+           	{var globalV=Math.max(0,cGlobalLightInt);
+
 			if (!SIMULATE)
 				{
 
-				 audioFrOsc1_1.setVolume(1/l1Dist	*l1Int		*cGlobalLightInt *0.3);
-				 audioFrOsc2_1.setVolume(1/l2Dist	*l2Int		*cGlobalLightInt*0.3);
-				 audioFrOsc3_1.setVolume(l3Int		*cGlobalLightInt*0.3);
 
-				 audioFrOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*cGlobalLightInt));
-				 audioFrOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*cGlobalLightInt));
-				 audioFrOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*cGlobalLightInt));
+				var mult=0.3;
+				 audioFrOsc1_1.setVolume( ( ((light1.position.y/yr))/9	*	(1/l1Dist	*l1Int		*globalV))*mult);
+				 audioFrOsc2_1.setVolume( ( ((light2.position.y/yr))/9   *	(1/l2Dist	*l2Int		*globalV))*mult);
+				 audioFrOsc3_1.setVolume( ( ((light3.position.y/yr))/9	*	(l3Int		*globalV))*mult);
+				 
+
+				 audioFrOsc1_2.setVolume( ( ((light1.position.y/yr))/4	*	(1/l1Dist	*l1Int		*globalV))*mult);
+				 audioFrOsc2_2.setVolume( ( ((light2.position.y/yr))/4   *	(1/l2Dist	*l2Int		*globalV))*mult);
+				 audioFrOsc3_2.setVolume( ( ((light3.position.y/yr))/4	*	(l3Int		*globalV))*mult);
+			//console.log(globalV+  " "+(( ((light3.position.y/yr))/9	*	(l3Int		*globalV))*mult));
 				 }
 			else 
 				{
 
-				 audioOsc1_1.setVolume(1/l1Dist	*l1Int		*cGlobalLightInt *0.3);
-				 audioOsc2_1.setVolume(1/l2Dist	*l2Int		*cGlobalLightInt*0.3);
-				 audioOsc3_1.setVolume(l3Int		*cGlobalLightInt*0.3);
+				 audioOsc1_1.setVolume(1/l1Dist	*l1Int		*globalV *0.3);
+				 audioOsc2_1.setVolume(1/l2Dist	*l2Int		*globalV*0.3);
+				 audioOsc3_1.setVolume(l3Int		*globalV*0.3);
 
-				 audioOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*cGlobalLightInt));
-				 audioOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*cGlobalLightInt));
-				 audioOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*cGlobalLightInt));
-
-			
+				 audioOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*globalV));
+				 audioOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*globalV));
+				 audioOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*globalV));
+				 
+				//console.log(globalV);
 				 }
+
+				 if ((l3y<-0.99) && !audioBassic1.isPlaying )
+				 	{	
+						audioBassic1.setVolume(0.3*globalV);
+				 		audioBassic1.play();
+				 	}
+				 if ((l3y>0.99) && !audioBassic1_1.isPlaying )
+				 	{	audioBassic1_1.setVolume(0.3*globalV);
+				 		audioBassic1_1.play();
+				 		
+				 	}
+
+				 if ((l1y<-0.99) && !audioBassic3.isPlaying )
+				 	{	
+						audioBassic3.setVolume(0.3*1/l1Dist*globalV);
+				 		audioBassic3.play();
+				 	}
+				 if ((l1y>0.99) && !audioBassic3_1.isPlaying )
+				 	{	audioBassic3_1.setVolume(0.3*1/l1Dist*globalV);
+				 		audioBassic3_1.play();
+				 		
+				 	}
+				 if ((l2y<-0.99) && !audioBassic2.isPlaying )
+				 	{	
+						audioBassic2.setVolume(0.3*1/l2Dist*globalV);
+				 		audioBassic2.play();
+				 	}
+				 if ((l2y>0.99) && !audioBassic2_1.isPlaying )
+				 	{	audioBassic2_1.setVolume(0.3*1/l2Dist*globalV);
+				 		audioBassic2_1.play();
+				 		
+				 	}
+
+				if (SIMULATE)
+				{
+				audioKling.setVolume((1-(countdown/COLLAPSETIME))*0.3);
+				audioBgloop.setVolume((countdown/COLLAPSETIME)*0.2);
+
+				}
+				else
+				{audioKling.setVolume(0);
+				audioBgloop.setVolume(0);
+
+				}
+
 			}
 				//osc1.mul=	1/l1Dist	*l1Int		*cGlobalLightInt;
 				//osc2.mul=	1/l2Dist	*l2Int		*cGlobalLightInt;
@@ -1278,8 +1429,10 @@ function afterResetTO()
         }
 
     function freezeSimulation(freeze)
-      {ACTIVATED=true;
+      { ACTIVATED=true;
       	SIMULATE=!freeze;
+      	if (!MUTED)
+      	{
       	if (!SIMULATE)
 				{audioFreezeloop.setVolume(0.2);
 				 audioBgloop.setVolume(0);
@@ -1291,36 +1444,37 @@ function afterResetTO()
 				 audioOsc2_2.stop();
 				 audioOsc3_1.stop();
 				 audioOsc3_2.stop();
-			     audioFrOsc1_1.play();
-				 audioFrOsc1_2.play();
-				 audioFrOsc2_1.play();
-				 audioFrOsc2_2.play();
-				 audioFrOsc3_1.play();
-				 audioFrOsc3_2.play();
+			    if( !audioFrOsc1_1.isPlaying) audioFrOsc1_1.play();
+				if( !audioFrOsc1_2.isPlaying)  audioFrOsc1_2.play();
+				if( !audioFrOsc2_1.isPlaying) audioFrOsc2_1.play();
+				if( !audioFrOsc2_2.isPlaying)  audioFrOsc2_2.play();
+				if( !audioFrOsc3_1.isPlaying) audioFrOsc3_1.play();
+				if( !audioFrOsc3_2.isPlaying)  audioFrOsc3_2.play();
 				
 				 }
 			else
 				{audioFreezeloop.setVolume(0);
-				 audioBgloop.setVolume(0.2);
+				 //audioBgloop.setVolume(0.2);
 				 audioRainrumba.setVolume(0);
 				 audioRumba.setVolume(0.35);
-				 audioOsc1_1.play();
-				 audioOsc1_2.play();
-				 audioOsc2_1.play();
-				 audioOsc2_2.play();
-				 audioOsc3_1.play();
-				 audioOsc3_2.play();
-				 audioFrOsc1_1.stop();
-				 audioFrOsc1_2.stop();
-				 audioFrOsc2_1.stop();
-				 audioFrOsc2_2.stop();
-				 audioFrOsc3_1.stop();
-				 audioFrOsc3_2.stop();
+				if( !audioOsc1_1.isPlaying)  audioOsc1_1.play();
+				if( !audioOsc1_2.isPlaying)  audioOsc1_2.play();
+				if( !audioOsc2_1.isPlaying)  audioOsc2_1.play();
+				if( !audioOsc2_2.isPlaying)  audioOsc2_2.play();
+				if( !audioOsc3_1.isPlaying)  audioOsc3_1.play();
+				if( !audioOsc3_2.isPlaying)  audioOsc3_2.play();
+				if (audioFrOsc1_1.isPlaying) audioFrOsc1_1.stop();
+				if (audioFrOsc1_2.isPlaying)  audioFrOsc1_2.stop();
+				if (audioFrOsc2_1.isPlaying)  audioFrOsc2_1.stop();
+				if (audioFrOsc2_2.isPlaying)  audioFrOsc2_2.stop();
+				if (audioFrOsc3_1.isPlaying)  audioFrOsc3_1.stop();
+				if (audioFrOsc3_2.isPlaying)  audioFrOsc3_2.stop();
 
-				
+				//scene_physi.onSimulationResume();
 
 			
 				 }
+			}
 
       }
 	
@@ -1328,7 +1482,10 @@ function afterResetTO()
 
     window.onload = manageLoading;
 	
+
+
         </script>
+	  }
 
     </body>
 </html>

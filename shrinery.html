@@ -11,36 +11,44 @@
     <body>
     	<!--button scripts ################################################################################################## -->
 	    <script type="text/javascript">
+
 	     function butInfoToggle()
 		  { //toggleQuality();
-		  	var el=document.getElementById("infoPanel");
-
-		  	if (el.className=="infoPanel") 	el.className = "infoPanel hidden";
-		  	else el.className = "infoPanel";
+		  	var ip=document.getElementById("infoPanel");
+			var el=document.getElementById("imgInfo")
+		  	if (ip.className=="infoPanel") 	
+			  {ip.className = "infoPanel hidden";
+			   el.setAttribute("class", "default"); 
+			  }
+		  	else  
+			  {ip.className = "infoPanel";
+			  el.setAttribute("class", "active"); 
+			  }
 		  //	console.log("ya"+document.getElementById("butQuality"));
+		 
+		   
+		
 		  }
+
 	    function butQualityToggle()
 		  { toggleQuality();
-		  	if (ENABLESHADOWS) 	document.getElementById("butQuality").className = "quality hi";
-		  	else document.getElementById("butQuality").className = "quality";
-		  	console.log("ya"+document.getElementById("butQuality"));
+		   var el=document.getElementById("imgQuality")
+		   
+		  	if (ENABLESHADOWS) el.setAttribute("class", "active"); 
+		  	else el.setAttribute("class", "default"); 
+		  
 		  }
+
+
+
 		 function butSoundToggle()
 		  { toggleSound();
 		//  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
 		 // 	else document.getElementById("butSound").className = "sound";
-		
-			 if (MUTED) 	
-			 	{document.getElementById("imgSoundOn").style.display = "none";
-			 	document.getElementById("imgSoundOff").style.display = "block";
-			 }
-			 else
-			 {document.getElementById("imgSoundOn").style.display = "block";
-			 	document.getElementById("imgSoundOff").style.display = "none";
-
-			 }
-		 // 	else document.getElementById("butSound").className = "sound";
-		  	console.log("ya "+document.getElementById("imgSoundOn").className);
+		var el=document.getElementById("imgSound")
+		   
+		  	if (MUTED) el.setAttribute("class", "active"); 
+		  	else el.setAttribute("class", "default"); 
 		  }
 
 		 function butActivate()
@@ -49,7 +57,11 @@
 		 	document.getElementById("gui").style.visibility='visible';
 		 }
 
-		 
+		 function showTooltip(txt)
+		   {
+			   var el=document.getElementById("tooltip");
+			   el.innerHTML=txt;
+		   }
 	    </script>
 
     <div class="shrines">
@@ -68,22 +80,56 @@
 			</div>
 		</button>
 		<div class="gui" id="gui">
-			
+			<div id="tooltip" class="tooltip"></div>
 			<ul>
 				<li>
-					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();">
-						<svg id="imgQualLo" class="show" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icQual" fill-rule="nonzero" fill="#FFFFFF"><polygon id="Combined-Shape" points="7 6.17542648 7 0 9 0 9 6.09252271 14.3564065 3 15.3564065 4.73205081 9.92820323 7.8660254 15.3564065 11 14.3564065 12.7320508 9 9.6395281 9 16 7 16 7 9.55662433 1.5 12.7320508 0.5 11 5.92820323 7.8660254 0.5 4.73205081 1.5 3 7 6.17542648"></polygon></g></g></svg>
+					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();" onmouseover="showTooltip('shadows');" onmouseout="showTooltip('');">
+						<svg id="imgQuality" class="default" width="40px" height="80px" viewBox="0 0 40 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+							<g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+								<g id="icQual2" fill="#FFFFFF">
+									<polygon id="Combined-Shape" fill-rule="nonzero" points="19 18.1754265 19 12 21 12 21 18.0925227 26.3564065 15 27.3564065 16.7320508 21.9282032 19.8660254 27.3564065 23 26.3564065 24.7320508 21 21.6395281 21 28 19 28 19 21.5566243 13.5 24.7320508 12.5 23 17.9282032 19.8660254 12.5 16.7320508 13.5 15 19 18.1754265"></polygon>
+									<rect id="Rectangle" x="19" y="52" width="2" height="16"></rect>
+								</g>
+							</g>
+						</svg>
 					</button>
 				</li><!--
 				--><li>
-					<button id="butSound" type="button" class="sound" onClick="butSoundToggle();">
-						<svg id="imgSoundOn" class="show" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icMute" fill-rule="nonzero" fill="#FFFFFF"><path d="M1,12 C0.44771525,12 0,11.5522847 0,11 L0,5 C0,4.44771525 0.44771525,4 1,4 L2.58578644,4 L6.29289322,0.292893219 C6.92285808,-0.337071642 8,0.109095149 8,1 L8,15 C8,15.8909049 6.92285808,16.3370716 6.29289322,15.7071068 L2.58578644,12 L1,12 Z M3,10 C3.26521649,10 3.5195704,10.1053568 3.70710678,10.2928932 L6,12.5857864 L6,3.41421356 L3.70710678,5.70710678 C3.5195704,5.89464316 3.26521649,6 3,6 L2,6 L2,10 L3,10 Z" id="Combined-Shape"></path><polygon id="Line" points="10 4 10 12 12 12 12 4"></polygon><polygon id="Line-Copy-2" points="14 2 14 14 16 14 16 2"></polygon></g></g></svg>
-						<svg id="imgSoundOff" class="hide" width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icMute-Copy" fill-rule="nonzero" fill="#FFFFFF"><path d="M1,12 C0.44771525,12 0,11.5522847 0,11 L0,5 C0,4.44771525 0.44771525,4 1,4 L2.58578644,4 L6.29289322,0.292893219 C6.92285808,-0.337071642 8,0.109095149 8,1 L8,15 C8,15.8909049 6.92285808,16.3370716 6.29289322,15.7071068 L2.58578644,12 L1,12 Z M3,10 C3.26521649,10 3.5195704,10.1053568 3.70710678,10.2928932 L6,12.5857864 L6,3.41421356 L3.70710678,5.70710678 C3.5195704,5.89464316 3.26521649,6 3,6 L2,6 L2,10 L3,10 Z" id="Combined-Shape"></path><g id="Group-2" transform="translate(8.000000, 4.000000)"><polygon id="Line" transform="translate(4.000000, 4.000000) rotate(45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon><polygon id="Line-Copy" transform="translate(4.000000, 4.000000) rotate(-45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon></g></g></g></svg>					
+					<button id="butSound" type="button" class="sound" onClick="butSoundToggle();" onmouseover="showTooltip('sound');" onmouseout="showTooltip('');">
+						<svg id="imgSound" class="default" width="40px" height="80px" viewBox="0 0 40 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+							<g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+								<g id="icSound2" fill-rule="nonzero" fill="#FFFFFF">
+									<g id="Group-3" transform="translate(12.000000, 51.000000)">
+										<path d="M1,13 C0.44771525,13 0,12.5522847 0,12 L0,6 C0,5.44771525 0.44771525,5 1,5 L2.58578644,5 L6.29289322,1.29289322 C6.92285808,0.662928358 8,1.10909515 8,2 L8,16 C8,16.8909049 6.92285808,17.3370716 6.29289322,16.7071068 L2.58578644,13 L1,13 Z M3,11 C3.26521649,11 3.5195704,11.1053568 3.70710678,11.2928932 L6,13.5857864 L6,4.41421356 L3.70710678,6.70710678 C3.5195704,6.89464316 3.26521649,7 3,7 L2,7 L2,11 L3,11 Z" id="Combined-Shape"></path>
+										<g id="Group-2" transform="translate(8.000000, 5.000000)">
+											<polygon id="Line" transform="translate(4.000000, 4.000000) rotate(45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon>
+											<polygon id="Line-Copy" transform="translate(4.000000, 4.000000) rotate(-45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon>
+										</g>
+									</g>
+									<g id="Group-2" transform="translate(12.000000, 10.000000)">
+										<path d="M1,13 C0.44771525,13 0,12.5522847 0,12 L0,6 C0,5.44771525 0.44771525,5 1,5 L2.58578644,5 L6.29289322,1.29289322 C6.92285808,0.662928358 8,1.10909515 8,2 L8,16 C8,16.8909049 6.92285808,17.3370716 6.29289322,16.7071068 L2.58578644,13 L1,13 Z M3,11 C3.26521649,11 3.5195704,11.1053568 3.70710678,11.2928932 L6,13.5857864 L6,4.41421356 L3.70710678,6.70710678 C3.5195704,6.89464316 3.26521649,7 3,7 L2,7 L2,11 L3,11 Z" id="Combined-Shape"></path>
+										<polygon id="Line" points="10 5 10 13 12 13 12 5"></polygon>
+										<polygon id="Line-Copy-2" points="14 3 14 15 16 15 16 3"></polygon>
+									</g>
+								</g>
+							</g>
+						</svg>				
 					</button>
 				</li><!--
 				--><li>
-					<button id="butInfo" type="button" class="info" onClick="butInfoToggle();">
-						<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="icAbout" fill-rule="nonzero" fill="#FFFFFF"><path d="M8,16 C3.581722,16 0,12.418278 0,8 C0,3.581722 3.581722,0 8,0 C12.418278,0 16,3.581722 16,8 C16,12.418278 12.418278,16 8,16 Z M8,14 C11.3137085,14 14,11.3137085 14,8 C14,4.6862915 11.3137085,2 8,2 C4.6862915,2 2,4.6862915 2,8 C2,11.3137085 4.6862915,14 8,14 Z" id="Oval-2"></path></g></g></svg>
+					<button id="butInfo" type="button" class="info" onClick="butInfoToggle();" onmouseover="showTooltip('info');" onmouseout="showTooltip('');">
+						<svg id="imgInfo" class="default" width="40px" height="80px" viewBox="0 0 40 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+							<g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+								<g id="icAbout2" fill-rule="nonzero" fill="#FFFFFF">
+									<path d="M20,28 C15.581722,28 12,24.418278 12,20 C12,15.581722 15.581722,12 20,12 C24.418278,12 28,15.581722 28,20 C28,24.418278 24.418278,28 20,28 Z M20,26 C23.3137085,26 26,23.3137085 26,20 C26,16.6862915 23.3137085,14 20,14 C16.6862915,14 14,16.6862915 14,20 C14,23.3137085 16.6862915,26 20,26 Z" id="Oval-2"></path>
+									<path d="M20,68 C15.581722,68 12,64.418278 12,60 C12,55.581722 15.581722,52 20,52 C24.418278,52 28,55.581722 28,60 C28,64.418278 24.418278,68 20,68 Z M20,66 C23.3137085,66 26,63.3137085 26,60 C26,56.6862915 23.3137085,54 20,54 C16.6862915,54 14,56.6862915 14,60 C14,63.3137085 16.6862915,66 20,66 Z" id="Oval-2-Copy"></path>
+									<g id="Group-2" transform="translate(16.000000, 56.000000)">
+										<polygon id="Line" transform="translate(4.000000, 4.000000) rotate(45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon>
+										<polygon id="Line-Copy" transform="translate(4.000000, 4.000000) rotate(-45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon>
+									</g>
+								</g>
+							</g>
+						</svg>
 					</button>
 				</li>
 			</ul>

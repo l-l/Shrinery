@@ -94,6 +94,14 @@
 				font-size: 10px;
 				color: #666;
 			}
+			.tooltip {
+				color: #555;
+				font-size: 10px;
+				font-family: 'Poppins', sans-serif;
+				padding-bottom: 5px;
+
+			}
+		
 			.loadingBar{
 				position: absolute;
 				top: 50%;
@@ -102,8 +110,7 @@
 				width:60px;
 				height: 5px;
 				background: white;
-				//transition: width 0.1s;
-				//-webkit-transition: width 0.1s;
+				
 			}
 
 
@@ -146,50 +153,49 @@
 				height: 40px;
 				overflow: hidden;
 				cursor: pointer;
+				padding: 0;
+				position:relative;
 			}
 
 			button.quality {
 				background: #666;
 				background: transparent;
-				/*background-image: url(img/icQual.svg);*/
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
 				opacity: 0.5;
+				overflow: hidden;
+				width: 40px;
+				height: 40px;
+				
 			}
-			button.quality.hi {
-				background: red;
-				background: transparent;
-				/*background-image: url(img/icQual.svg);*/
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-				opacity: 0.5;
-
-			}
+		
 			button.sound {
 				background: transparent;
-				/*background-image: url(img/icMute.svg);*/
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
+				overflow: hidden;
+				width: 40px;
+				height: 40px;
 				opacity: 0.5;
 
 			}
-			button.sound.muted {
-				background: transparent;
-				/*background-image: url(img/icMuted.svg);*/
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-				opacity: 0.5;
+			svg.default{
+				top:0px;
+				position: absolute;
+				left:0;
+				-webkit-transition-property: top;
+        		-webkit-transition-duration: 0.3s;
+				
+			}
+			svg.active{
+				top:-40px;
+				position: absolute;
+				left:0;
+				-webkit-transition-property: top;
+        		-webkit-transition-duration: 0.3s;
+				
 			}
 			button.info {
 				background: transparent;
-				/*background-image: url(img/icAbout.svg);*/
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
+				overflow: hidden;
+				width: 40px;
+				height: 40px;
 				opacity: 0.5;
 
 			}
@@ -197,6 +203,7 @@
 				background-color: #222;
 				opacity: 1;
 			}
+
 
 		
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="80px" viewBox="0 0 40 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>icSound2</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icSound2" fill-rule="nonzero" fill="#FFFFFF">
+            <g id="Group-3" transform="translate(12.000000, 51.000000)">
+                <path d="M1,13 C0.44771525,13 0,12.5522847 0,12 L0,6 C0,5.44771525 0.44771525,5 1,5 L2.58578644,5 L6.29289322,1.29289322 C6.92285808,0.662928358 8,1.10909515 8,2 L8,16 C8,16.8909049 6.92285808,17.3370716 6.29289322,16.7071068 L2.58578644,13 L1,13 Z M3,11 C3.26521649,11 3.5195704,11.1053568 3.70710678,11.2928932 L6,13.5857864 L6,4.41421356 L3.70710678,6.70710678 C3.5195704,6.89464316 3.26521649,7 3,7 L2,7 L2,11 L3,11 Z" id="Combined-Shape"></path>
+                <g id="Group-2" transform="translate(8.000000, 5.000000)">
+                    <polygon id="Line" transform="translate(4.000000, 4.000000) rotate(45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon>
+                    <polygon id="Line-Copy" transform="translate(4.000000, 4.000000) rotate(-45.000000) translate(-4.000000, -4.000000) " points="3 0 3 8 5 8 5 0"></polygon>
+                </g>
+            </g>
+            <g id="Group-2" transform="translate(12.000000, 10.000000)">
+                <path d="M1,13 C0.44771525,13 0,12.5522847 0,12 L0,6 C0,5.44771525 0.44771525,5 1,5 L2.58578644,5 L6.29289322,1.29289322 C6.92285808,0.662928358 8,1.10909515 8,2 L8,16 C8,16.8909049 6.92285808,17.3370716 6.29289322,16.7071068 L2.58578644,13 L1,13 Z M3,11 C3.26521649,11 3.5195704,11.1053568 3.70710678,11.2928932 L6,13.5857864 L6,4.41421356 L3.70710678,6.70710678 C3.5195704,6.89464316 3.26521649,7 3,7 L2,7 L2,11 L3,11 Z" id="Combined-Shape"></path>
+                <polygon id="Line" points="10 5 10 13 12 13 12 5"></polygon>
+                <polygon id="Line-Copy-2" points="14 3 14 15 16 15 16 3"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -3,206 +3,57 @@
         <title>dSeHpRaIrNtE</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <style>
+        <link href="https://fonts.googleapis.com/css?family=Poppins:600" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="shrine.css">
 
-           
-
-            #container
-             	{	position: absolute;
-             		width: 100%;
-					 height: 100%;
-   					
-             	}
-         
-			.activate
-			{		
-				position: absolute;
-				
-			 	cursor:pointer;
-   			   border:none;
-    		  width:100%;
-   			 height:100%;
-   			/* background-color:rgba(0, 0, 0, 0);*/
-   			background: transparent;
-   			
-			}
-			.activate img{
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				width:100px;
-				height: 100px;
-
-			}
-			.infoPanel {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				
-				width:200px;
-				height:200px;
-				text-align: center;
-				color: white;
-			
-				visibility: hidden;
-				background-color: black;
-
-			}
-			.infoPanel div {
-				position: absolute;
-				top: 50%;
-				left: 0;
-				transform: translateY(-50%);
-			  	text-align: center;
-			}
-			.loadingBar{
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				width:60px;
-				height: 5px;
-				background: white;
-				//transition: width 0.1s;
-				//-webkit-transition: width 0.1s;
-			}
-
-
-			html, body {
-				height: 100%;
-				margin: 0;
-				padding: 0;
-				overflow: hidden;
-				background: black;
-				position: relative;
-			}
-			.shrines {
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-			}
-			.gui {
-				position: absolute;
-				bottom: 20px;
-				left: 20px;
-				right: 20px;
-				text-align: center;
-				visibility: hidden;
-				
-			}
-			.gui ul {
-				border: 1px white solid;
-				display: inline-block;
-				list-style: none;
-				margin: 0;
-				padding: 0;
-			}
-			.gui li {
-				display: inline-block;
-				border-right: 1px #fff solid;
-			}
-			.gui li:last-child {
-				border: none;
-			}
-			.gui button {
-				display: inline-block;
-				text-align: center;
-				border: 0;
-				width: 40px;
-				height: 40px;
-				overflow: hidden;
-				cursor: pointer;
-			}
-
-			button.quality {
-				background: #666;
-				background: transparent;
-				background-image: url(img/icQual.svg);
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-			}
-			button.quality.hi {
-				background: red;
-				background: transparent;
-				background-image: url(img/icQual.svg);
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-
-			}
-			button.sound {
-				background: transparent;
-				background-image: url(img/icMute.svg);
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-
-			}
-			button.sound.muted {
-				background: transparent;
-				background-image: url(img/icMuted.svg);
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-			}
-			button.info {
-				background: transparent;
-				background-image: url(img/icAbout.svg);
-				background-repeat: no-repeat;
-				background-size: 16px 16px;
-				background-position: center; 
-
-			}
-			button.sound:hover, button.quality:hover{
-				background: blue;
-			}
-
-			button span.active {
-				display: none;				
-			}
-			button.active span.active {
-				display: block;
-			}
-			button.active span.default {
-				display: none;
-			}			
-        </style>
+      
     </head>
     <body>
-    <script type="text/javascript">
-    function butQualityToggle()
-	  { toggleQuality();
-	  	if (ENABLESHADOWS) 	document.getElementById("butQuality").className = "quality hi";
-	  	else document.getElementById("butQuality").className = "quality";
-	  	console.log("ya"+document.getElementById("butQuality"));
-	  }
-	 function butSoundToggle()
-	  { toggleSound();
-	  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
-	  	else document.getElementById("butSound").className = "sound";
-	 // 	console.log("ya"+document.getElementById("butSound"));
-	  }
+    	<!--button scripts ################################################################################################## -->
+	    <script type="text/javascript">
+	     function butInfoToggle()
+		  { //toggleQuality();
+		  	var el=document.getElementById("infoPanel");
 
-	 function butActivate()
-	 {
-	 	freezeSimulation(false);
-	 	document.getElementById("gui").style.visibility='visible';
-	 }
-    </script>
+		  	if (el.className=="infoPanel") 	el.className = "infoPanel hidden";
+		  	else el.className = "infoPanel";
+		  //	console.log("ya"+document.getElementById("butQuality"));
+		  }
+	    function butQualityToggle()
+		  { toggleQuality();
+		  	if (ENABLESHADOWS) 	document.getElementById("butQuality").className = "quality hi";
+		  	else document.getElementById("butQuality").className = "quality";
+		  	console.log("ya"+document.getElementById("butQuality"));
+		  }
+		 function butSoundToggle()
+		  { toggleSound();
+		  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
+		  	else document.getElementById("butSound").className = "sound";
+		 // 	console.log("ya"+document.getElementById("butSound"));
+		  }
+
+		 function butActivate()
+		 {
+		 	freezeSimulation(false);
+		 	document.getElementById("gui").style.visibility='visible';
+		 }
+	    </script>
 
     <div class="shrines">
         <div id="container" class="container"></div>
         <button class="activate" onclick="butActivate();this.style.visibility='hidden';">
-        <div id="loadingBar" class="loadingBar"></div>
-        	<img src="img/shrineCircular.svg" />
-        	
+	        <div id="loadingBar" class="loadingBar"></div>
+	        <img src="img/shrineCircular.svg">
+	        	
 		</button>
-		<div id="infoPanel" class="infoPanel"><div>Shrine by <a href="http://depart.at">depart</a><br><br>there will always be beginnings</div></div>
+		<button id="infoPanel" class="infoPanel hidden" onclick="this.className='infoPanel hidden';">
+			<div>
+				<h1>SHRINE I</h1>
+				<h3><a href="http://depart.at">BY DEPART</a></h3>
+				<br>
+				<p>there will always be beginnings</p>
+			</div>
+		</button>
 		<div class="gui" id="gui">
 			
 			<ul>
@@ -219,7 +70,7 @@
 					</button>
 				</li><!--
 				--><li>
-					<button id="butInfo" type="button" class="info" onClick="loadLocation();">
+					<button id="butInfo" type="button" class="info" onClick="butInfoToggle();">
 						<span class="default"></span>
 					</button>
 				</li>

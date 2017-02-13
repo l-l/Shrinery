@@ -223,8 +223,12 @@ function createPillar()
 		screenGroup.add(box);
 		//screenGroup.castShadow=true;
 
+		// approximated position in the layoutgrid
+		//updateLayoutHeights(4,5, 4,2, totalHeight+plinthHeight);  //x y  w h  level
+
 		scene_physi.add( screenGroup);
-		
+		// build a table over the screen to prevent intersections
+		//createLayoutTable(3,4, 4,2, totalHeight+plinthHeight/WORLDSCALE+2,false);
 
 
 
@@ -276,7 +280,7 @@ function createPillar()
 
    	  }
 
-    function createLayoutTable(gridx,gridy,gridw,gridh,level) // createLayoutTable(2,3, 6,4, 10);//(gridx,gridy, gridw,gridh, level); 
+    function createLayoutTable(gridx,gridy,gridw,gridh,level, topRandom) // createLayoutTable(2,3, 6,4, 10);//(gridx,gridy, gridw,gridh, level); 
         {   
             var unit=0.1; // size of legs and thickness of tabletop
 			var nGridx=gridx,nGridy=gridy,nGridw=gridw,nGridh=gridh;
@@ -293,7 +297,8 @@ function createPillar()
 
 				
 					var legHeight=0;
-					var topHeight=Math.random()* ((level-maxHeight)/1.2-unit)+unit;
+					var topHeight=unit;
+					if (topRandom) topHeight=Math.random()* ((level-maxHeight)/1.2-unit)+unit;
 		            var p=new THREE.Vector3();
 					var center=new THREE.Vector3(-5,0,-5);
 		            // LEG1 topleft

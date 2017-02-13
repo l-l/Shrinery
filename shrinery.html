@@ -355,20 +355,23 @@ function initSound()
 			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2*WORLDSCALE, 180*WORLDSCALE );
 			camera.position.x = 10*WORLDSCALE;
 			camera.position.y = 10*WORLDSCALE;
-			camera.position.z =  18*WORLDSCALE;
+			camera.position.z =  20*WORLDSCALE;
 			//camera.lookAt(0,0,0);
 			controls = new THREE.OrbitControls( camera );
 			controls.autoRotate = true;
 			controls.autoRotateSpeed = -0.1;
 			controls.userPan=false;
+			controls.rotateSpeed=0.1;
 			
 			controls.userPanSpeed = 0.001;
 			controls.enableDamping = true;
 			controls.dampingFactor = 0.06;
 			controls.maxPolarAngle = 1.7; // stay above ground 
 			controls.target.y = 6*WORLDSCALE;
-			controls.minDistance = 10*WORLDSCALE;
+			controls.minDistance = 15*WORLDSCALE;
 			controls.maxDistance = 25*WORLDSCALE;
+			controls.enablePan = false;
+			controls.enableZoom = false;
 			controls.momentumScalingFactor=0.00001;
 			scene_physi.add(camera); // only necessary because the skybox is CHILD of the cam
 
@@ -995,8 +998,9 @@ function initSound()
 				 var y=Math.round(Math.random()*9);
 				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
 				 var h=Math.min(4,Math.max(1,Math.round(Math.random()*(10-y))));
-				 createLayoutTable(x,y, w,h, i*0.6);
+				 createLayoutTable(x,y, w,h, i*0.6, true);
 			 }
+		
 	    }
 		
 		function initInput() {

@@ -284,7 +284,7 @@ function createPillar()
 			
 			var maxHeight=checkLayoutMaxHeight(gridx,gridy,gridw,gridh,level);
             
-			if (maxHeight<(level-unit)) // see if the current level is possible at this position
+			if (maxHeight<(level-3*unit)) // see if the current level is possible at this position
 				{
 
 
@@ -438,7 +438,7 @@ function createPillar()
 
         //close
         points.push(new THREE.Vector2(0,cy));
-        plinthHeight=cy+unit;
+        plinthHeight=cy;
         updateLayoutHeights(2,3, 6,4, plinthHeight);
 		var pos=new THREE.Vector3(0,0,0);
         pos.multiplyScalar(WORLDSCALE);
@@ -474,28 +474,33 @@ function createPillar()
 		
         	material.shading = THREE.FlatShading; 
 		
-		lathe = new Physijs.BoxMesh(//new Physijs.ConvexMesh(
+		plinth = new Physijs.BoxMesh(//new Physijs.ConvexMesh(
 					lathe_geometry,//lathe_geometry,
 					material
 		    		);
 			
-            lathe.collisions = 0;
-			lathe.lastCollision=0;
+            
+			
 			//lathe.position.set(pos.x, pos.y, pos.z);
-			lathe.position.set(0, cy*WORLDSCALE/2, 0);
-			lathe.castShadow = true;
-			lathe.receiveShadow=true;
+			
+			plinth.castShadow = true;
+			plinth.receiveShadow=true;
 			//lathe.addEventListener( 'collision', handleCollision );
 			//lathe.addEventListener( 'ready', ready );
 			
 			// make immovable:
-			lathe.setAngularFactor(new THREE.Vector3( 0, 0, 0 )); 
-			lathe.setLinearFactor(new THREE.Vector3( 0, 0, 0 )); 
-			lathe.mass=0;
 
-            physiBodies.push(lathe);
-            removeableBodies.push(lathe);
-            scene_physi.add( lathe );
+			plinth.setAngularFactor(new THREE.Vector3( 0, 0, 0 )); 
+			plinth.setLinearFactor(new THREE.Vector3( 0, 0, 0 )); 
+			plinth.position.set(0, cy*WORLDSCALE/2, 0);
+			plinth.__dirtyPosition = true;
+			plinth.rotation.set(0,0,0);
+			plinth.__dirtyRotation = true
+			plinth.mass=0;
+
+            physiBodies.push(plinth);
+           // removeableBodies.push(plinth);
+            scene_physi.add( plinth );
 
         
         //createBoxPhys(6,cy,4,100,new THREE.Vector3(0,cy/2,0));//(sx, sy, sz, mass, pos) 

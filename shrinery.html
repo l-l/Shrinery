@@ -181,6 +181,7 @@
         var DEBUG=false;		//display stats
 
         var plinthHeight=0; 	// stores the height of the plinth for the layoutheights matrix 
+        var plinth;
         var countdown=COLLAPSETIME;	// the countdown to the next restart
         
         var frm=0;					// frame counter, for rendering the physics engine only every 2nd frame
@@ -268,6 +269,15 @@ function reset()
       //     
       updateLayoutHeights(2,3, 6,4, plinthHeight); // dirty fix - the plinth is not recreated, so the layoutHeights Matrix needs to have its heights
 
+      // if the plinth has moved (bug!!)
+      plinth.setAngularFactor(new THREE.Vector3( 0, 0, 0 )); 
+			plinth.setLinearFactor(new THREE.Vector3( 0, 0, 0 )); 
+			plinth.position.set(0, plinthHeight*WORLDSCALE/2, 0);
+			plinth.__dirtyPosition = true;
+			plinth.rotation.set(0,0,0);
+			plinth.__dirtyRotation = true
+			plinth.mass=0;
+
       for (var i=0;i<removeableBodies.length;i++)
       {
       	scene_physi.remove(removeableBodies[i]);
@@ -283,7 +293,8 @@ function reset()
 
       createRemoveableBodies();
       setTimeout(function() {resetInterval=setInterval(afterResetTO,25)}, 200);
-      setTimeout(function() {SIMULATE=true}, 5000);
+      //setTimeout(function() {SIMULATE=true}, 5000);
+      setTimeout(function(){freezeSimulation(false)},5000);
 
     }
 
@@ -727,7 +738,7 @@ function initSound()
 			}
 		function afterResetTO()
 		   {skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
-		    freezeSimulation(false);
+		    //freezeSimulation(false);
 		  
 		   	tGlobalLightInt=1;
 		   	if (light1.intensity>=0.9) 

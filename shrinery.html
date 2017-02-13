@@ -6,7 +6,7 @@
         <link href="https://fonts.googleapis.com/css?family=Poppins:600" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="shrine.css">
 
-      
+      <base target="_parent" />
     </head>
     <body>
     	<!--button scripts ################################################################################################## -->
@@ -36,7 +36,7 @@
 		   
 		  	if (ENABLESHADOWS) el.setAttribute("class", "active"); 
 		  	else el.setAttribute("class", "default"); 
-		  
+		   showTooltip("shadows");
 		  }
 
 
@@ -49,6 +49,7 @@
 		   
 		  	if (MUTED) el.setAttribute("class", "active"); 
 		  	else el.setAttribute("class", "default"); 
+		  	showTooltip("sound");
 		  }
 
 		 function butActivate()
@@ -58,7 +59,19 @@
 		 }
 
 		 function showTooltip(txt)
-		   {
+		   {   if (txt=="shadows")
+			   		{console.log("sh="+ENABLESHADOWS);
+			   		 if (ENABLESHADOWS)
+			   		  {txt="disable shadows";
+			   		  }
+			   		 else txt="enable shadows";
+			   		}
+			   	if (txt=="sound")
+				   	{
+				   		if (MUTED)	txt="play sound";
+				   		else txt="mute sound";
+
+				   	}
 			   var el=document.getElementById("tooltip");
 			   el.innerHTML=txt;
 		   }
@@ -167,7 +180,7 @@
         var MUTED=false;		// sound muted, changed at runtime
         var DEBUG=false;		//display stats
 
-
+        var plinthHeight=0; 	// stores the height of the plinth for the layoutheights matrix 
         var countdown=COLLAPSETIME;	// the countdown to the next restart
         
         var frm=0;					// frame counter, for rendering the physics engine only every 2nd frame
@@ -253,6 +266,8 @@ function reset()
             [0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0],];
       //     
+      updateLayoutHeights(2,3, 6,4, plinthHeight); // dirty fix - the plinth is not recreated, so the layoutHeights Matrix needs to have its heights
+
       for (var i=0;i<removeableBodies.length;i++)
       {
       	scene_physi.remove(removeableBodies[i]);
@@ -356,7 +371,7 @@ function initSound()
  					ENABLESHADOWS=false;
  					ANTIALIAS=false;
 				}
-			if (pixelratio>1) ANTIALIAS=false;
+			if (pixelratio>1.25) ANTIALIAS=false;
 			renderer = new THREE.WebGLRenderer({antialias:ANTIALIAS});
 			renderer.setClearColor( 0x000);
 			//renderer.gammaInput = true;
@@ -1120,10 +1135,10 @@ function initSound()
     function toggleQuality()
       {
 		ENABLESHADOWS=!ENABLESHADOWS;
-		light1.castShadow=false;
+		light1.castShadow=ENABLESHADOWS;
 		light2.castShadow=ENABLESHADOWS;
-      	light3.castShadow=ENABLESHADOWS;//ENABLESHADOWS;
-      	screenLight.castShadow=false;
+      	light3.castShadow=false;//ENABLESHADOWS;
+      	screenLight.castShadow=ENABLESHADOWS;
       	// not possible at runtim
       	//ANTIALIAS=ENABLESHADOWS;
       	//scene_physi.antialias=ENABLESHADOWS;

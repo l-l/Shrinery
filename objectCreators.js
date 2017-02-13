@@ -126,7 +126,9 @@ function createPillar()
    		}
 
     function createScreen(w,h,totalHeight) 
-      { var box, material;
+      { 
+      	// Untidy: screen is not updating the layoutheights matrix
+      	var box, material;
       	var screenThickness=0.1*WORLDSCALE;
       	var screenW=(w*WORLDSCALE-2*screenThickness);
       	var screenH=(h*WORLDSCALE-2*screenThickness);
@@ -144,6 +146,7 @@ function createPillar()
 		collider.visible=false;
 		collider.mass=0;
 		physiBodies.push(collider);
+
       	scene_physi.add(collider);
 
         //--------------------
@@ -174,7 +177,7 @@ function createPillar()
 		var obj1= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
 		screenLight.add(obj1);
 		screenLight.obj=obj1;
-		screenLight.castShadow=false;//ENABLESHADOWS;
+		screenLight.castShadow=ENABLESHADOWS;//ENABLESHADOWS;
 		//	screenLight.shadow.mapSize.x = mapsize; screenLight.shadow.mapSize.y = mapsize;
         //    screenLight.shadow.camera.left = -d; screenLight.shadow.camera.right = d;	screenLight.shadow.camera.top = d;	screenLight.shadow.camera.bottom = -d;
 		//    screenLight.shadow.camera.near = 2;  screenLight.shadow.camera.far = 200*WORLDSCALE;
@@ -275,18 +278,18 @@ function createPillar()
 
     function createLayoutTable(gridx,gridy,gridw,gridh,level) // createLayoutTable(2,3, 6,4, 10);//(gridx,gridy, gridw,gridh, level); 
         {   
-            
+            var unit=0.1; // size of legs and thickness of tabletop
 			var nGridx=gridx,nGridy=gridy,nGridw=gridw,nGridh=gridh;
             //gridx*=WORLDSCALE; gridy*=WORLDSCALE; gridw*=WORLDSCALE; gridh*=WORLDSCALE;level*=WORLDSCALE;
 			
 			var maxHeight=checkLayoutMaxHeight(gridx,gridy,gridw,gridh,level);
             
-			if (maxHeight<level) // see if the current level is possible at this position
+			if (maxHeight<(level-unit)) // see if the current level is possible at this position
 				{
 
 
 					var brickMass = 5;
-					var unit=0.1; // size of legs and thickness of tabletop
+					
 
 				
 					var legHeight=0;
@@ -435,8 +438,8 @@ function createPillar()
 
         //close
         points.push(new THREE.Vector2(0,cy));
-        
-        updateLayoutHeights(2,3, 6,4, cy);
+        plinthHeight=cy+unit;
+        updateLayoutHeights(2,3, 6,4, plinthHeight);
 		var pos=new THREE.Vector3(0,0,0);
         pos.multiplyScalar(WORLDSCALE);
 
@@ -455,8 +458,10 @@ function createPillar()
 		var box_geometry=new THREE.BoxGeometry(6,cy,4);
 		
 		lathe_geometry.rotateY(Math.PI/4);
-        lathe_geometry.scale(1,1,aspect);
+		var sc=0.90; // slight adjustment within the grid
+        lathe_geometry.scale(1*sc,1,aspect*sc);
 		lathe_geometry.computeBoundingBox();
+		
 	//	lathe_geometry.translate(0,cy/2,0);
 		//lathe_geometry.applyMatrix();
 		lathe_geometry.center();
@@ -468,7 +473,8 @@ function createPillar()
 			    	);
 		
         	material.shading = THREE.FlatShading; 
-					lathe = new Physijs.BoxMesh(//new Physijs.ConvexMesh(
+		
+		lathe = new Physijs.BoxMesh(//new Physijs.ConvexMesh(
 					lathe_geometry,//lathe_geometry,
 					material
 		    		);
@@ -478,11 +484,17 @@ function createPillar()
 			//lathe.position.set(pos.x, pos.y, pos.z);
 			lathe.position.set(0, cy*WORLDSCALE/2, 0);
 			lathe.castShadow = true;
-			lathe.receiveShadow=false;
+			lathe.receiveShadow=true;
 			//lathe.addEventListener( 'collision', handleCollision );
 			//lathe.addEventListener( 'ready', ready );
 			
+			// make immovable:
+			lathe.setAngularFactor(new THREE.Vector3( 0, 0, 0 )); 
+			lathe.setLinearFactor(new THREE.Vector3( 0, 0, 0 )); 
+			lathe.mass=0;
+
             physiBodies.push(lathe);
+            removeableBodies.push(lathe);
             scene_physi.add( lathe );
 
         

@@ -178,7 +178,7 @@
         var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false; 	//initial state of shadows, can be changed at runtime
 		if (UHQ) ENABLESHADOWS=true;
-        var COLLAPSETIME=56;		//time to restart the scence in seconds 26
+        var COLLAPSETIME=26;		//time to restart the scence in seconds 26
         var MUTED=false;		// sound muted, changed at runtime
         var DEBUG=false;		//display stats
 
@@ -1000,7 +1000,7 @@ function initSound()
 		}
 	function createRemoveableBodies()
 	    {
-	    	for (var i=3;i<32;i++)
+	    	for (var i=3;i<34;i++)
 			 {	 var x=Math.round(Math.random()*9);
 				 var y=Math.round(Math.random()*9);
 				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
@@ -1102,14 +1102,17 @@ function initSound()
 //=================================================================================================================================7=============
 	function snapshot()
 		{
-			 if(makeSnapshot ){
+			
             var imgData = renderer.domElement.toDataURL('image/png' );
             makeSnapshot = false;
 			console.log("makesnap"+makeSnapshot);
 			window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
 			onWindowResize();
-        	}
+        	
 		}
+
+// THE MAIN RENDER LOOP ----------------------------------------------------------------------------------------
+
 	function render() 
         {  console.log("render");
         	if (ACTIVATED)
@@ -1174,7 +1177,7 @@ function initSound()
 						}
 					*/
 					renderer.render( scene_physi, camera );
-					// snapshot();
+					// if(makeSnapshot) snapshot();
 				}
 
 			

@@ -170,14 +170,15 @@
 		    document.getElementById( 'container' ).innerHTML = "";
 		}
 
-		var UHQ=false; // Ultra High Quality for snapshot
+		var UHQ=true; // Ultra High Quality for snapshot
 		var SIMULATE=false;   //physics simulation running?
-		var ACTIVATED=false; // initially the scene is paused and needs to be clicked once to start
+		var STARTED=false; // initially the scene is paused and needs to be clicked once to start, threejs is rendering (ACTIVATED)
+		var ACTIVATED=true; // threejs rendering is on 
         var WORLDSCALE=40; //40  -- scale the whole world for slow-motion feeling
         var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false; 	//initial state of shadows, can be changed at runtime
-		
-        var COLLAPSETIME=26;		//time to restart the scence in seconds
+		if (UHQ) ENABLESHADOWS=true;
+        var COLLAPSETIME=56;		//time to restart the scence in seconds 26
         var MUTED=false;		// sound muted, changed at runtime
         var DEBUG=false;		//display stats
 
@@ -999,7 +1000,7 @@ function initSound()
 		}
 	function createRemoveableBodies()
 	    {
-	    	for (var i=3;i<35;i++)
+	    	for (var i=3;i<32;i++)
 			 {	 var x=Math.round(Math.random()*9);
 				 var y=Math.round(Math.random()*9);
 				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
@@ -1028,7 +1029,8 @@ function initSound()
 				    // A
 				    case 65:
 						//makeSnapshot=true;
-						deactivate();
+						if (ACTIVATED) deactivate();
+						else activate();
 						
 					break;
 
@@ -1077,7 +1079,9 @@ function initSound()
 				var newHeight = Math.floor( height / pixelRatio ) || 1;
 				//depthRenderTarget.setSize( newWidth, newHeight );
 				//effectComposer.setSize( newWidth, newHeight );
+				
 				renderer.setSize( width, height);
+
 
 
 		}
@@ -1103,71 +1107,76 @@ function initSound()
             makeSnapshot = false;
 			console.log("makesnap"+makeSnapshot);
 			window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
+			onWindowResize();
         	}
 		}
 	function render() 
-        {	var delta=clock.getDelta();
-          // console.log(physiBodies.length);
-         
-          frm++;
-          
-            if (SIMULATE && frm%1==0) 
-            	{scene_physi.simulate(delta, 10 ); //timestep, maxsteps
-           		 countdown-=delta;
-           		}
-            if (countdown<=0 && !resetting) 
-            	{prepareReset();
-            	 //console.log("prepare reset");
-            	}
-           	
-        	controls.update(delta );
-			animateLights(delta);
-			updateTexCanvas();
-			/*
-            skybox.position.x=camera.position.x;
-		    skybox.position.y=camera.position.y;
-		    skybox.position.z=camera.position.z;
-		    */
-			if (DEBUG) stats.update();
-/*
-			for (var i=0;i<layoutTables.length;i++)
-			{
+        {  console.log("render");
+        	if (ACTIVATED)
+				{
+		           var delta=clock.getDelta();
+		           console.log(delta);
+		         
+		          	frm++;
+		          
+		            if (SIMULATE)// && frm%1==0) 
+		            	{scene_physi.simulate(delta, 10 ); //timestep, maxsteps
+		           		 countdown-=delta;
+		           		}
+		            if (countdown<=0 && !resetting) 
+		            	{prepareReset();
+		            	 //console.log("prepare reset");
+		            	}
+		           	
+		        	controls.update(delta );
+					animateLights(delta);
+					updateTexCanvas();
 				
-				var v=new THREE.Vector3(0,160,0);
-				//v.copy(layoutTables[i].top.position);
-				//v.sub(layoutTables[i].leg1.position);
-				//scene_physi.update();
-				
-				var nv=layoutTables[i].leg1.worldToLocal(v);
-				layoutTables[i].leg1._geomLine.dynamic = true;
-				layoutTables[i].leg1._geomLine.vertices[1].x=nv.x;
-				layoutTables[i].leg1._geomLine.vertices[1].y=nv.y;
-				layoutTables[i].leg1._geomLine.vertices[1].z=nv.z;
-				//layoutTables[i].leg1._geomLine.vertices[0]=new THREE.Vector3(0,0,0);
-				//layoutTables[i].leg1._geomLine.__dirtyVertices = true;
-				layoutTables[i].leg1._geomLine.verticesNeedUpdate = true;
-				if (i==1) console.log(layoutTables[i].leg1.worldToLocal(v));
-			//	layoutTables[i].leg1._geomLine.vertices[1].y=layoutTables[i].leg2.position.y-layoutTables[i].leg1.position.y;
-			//		layoutTables[i].leg1._geomLine.vertices[1].z=layoutTables[i].leg2.position.z-layoutTables[i].leg1.position.z;
+					if (DEBUG) stats.update();
+					/*
+					for (var i=0;i<layoutTables.length;i++)
+						{	
+							var v=new THREE.Vector3(0,160,0);
+							//v.copy(layoutTables[i].top.position);
+							//v.sub(layoutTables[i].leg1.position);
+							//scene_physi.update();
+							
+							var nv=layoutTables[i].leg1.worldToLocal(v);
+							layoutTables[i].leg1._geomLine.dynamic = true;
+							layoutTables[i].leg1._geomLine.vertices[1].x=nv.x;
+							layoutTables[i].leg1._geomLine.vertices[1].y=nv.y;
+							layoutTables[i].leg1._geomLine.vertices[1].z=nv.z;
+							//layoutTables[i].leg1._geomLine.vertices[0]=new THREE.Vector3(0,0,0);
+							//layoutTables[i].leg1._geomLine.__dirtyVertices = true;
+							layoutTables[i].leg1._geomLine.verticesNeedUpdate = true;
+							if (i==1) console.log(layoutTables[i].leg1.worldToLocal(v));
+						
+						}
+					*/
+		           	
+					setTimeout( function() 
+						{  //limit the framerate to 30 fps
 
-			}
-			*/
-            
-		//	if (delta<160) requestAnimationFrame( render );
-	
+							requestAnimationFrame( render ); //	if (delta<160) 
 
-				setTimeout( function() {
+						}, 1000 / 30 );
+						
+					/*
+					if (makeSnapshot && UHQ)
+						{	light1.intensity=1;
+							light2.intensity=1;
+							light3.intensity=1;
+							var el=document.getElementById("container");
+							var width=el.offsetWidth*3;//window.innerWidth;
+							var height=el.offsetHeight*3;
+							renderer.setSize( width, height);
+						
+						}
+					*/
+					renderer.render( scene_physi, camera );
+					// snapshot();
+				}
 
-					requestAnimationFrame( render );
-
-				}, 1000 / 30 );
-
-				renderer.render( scene_physi, camera );
-
-			
-
-
-			snapshot();
 			
 		}
 
@@ -1175,12 +1184,24 @@ function initSound()
     function deactivate()
 	 {	console.log("deak");
 		 freezeSimulation(true);
-		 document.getElementById("gui").style.visibility='hidden';
-		 document.getElementById("activate").style.visibility='visible';
-		 ACTIVATED=false;
-		 muteSound();
 		 
+		 document.getElementById("gui").style.visibility='hidden';
+		 //document.getElementById("activate").style.visibility='visible';
+		 muteSound();
+		 ACTIVATED=false;
 	 }
+
+	function activate()
+		{	clock.getDelta(); // call once to reset the oldTime (and get rid of the timegap)
+			ACTIVATED=true;
+			 document.getElementById("gui").style.visibility='visible';
+		 	//document.getElementById("activate").style.visibility='hidden';
+			freezeSimulation(false);
+			render();
+
+		} 
+
+
     function toggleQuality()
       {
 		ENABLESHADOWS=!ENABLESHADOWS;
@@ -1282,10 +1303,10 @@ function initSound()
 
             cGlobalLightInt+=(tGlobalLightInt-cGlobalLightInt)/60;
             var intMult=1.0;
-            if (!ACTIVATED) intMult=0.1;
+            if (!STARTED) intMult=0.1;
             // blinking at top and bottom positions
             var l1IntOs=0,l2IntOs=0,l3IntOs=0;
-            if (!resetting && ACTIVATED)
+            if (!resetting && STARTED)
 	            {if(Math.abs(l1y)>0.99) l1IntOs=2;
 	            if(Math.abs(l2y)>0.99) l2IntOs=2;
 	            if(Math.abs(l3y)>0.99) l3IntOs=2;
@@ -1321,7 +1342,7 @@ function initSound()
            	// SOUND _-----------------------------------------------
 
 
-           	if (ACTIVATED && !MUTED)
+           	if (STARTED && !MUTED)
            	{var globalV=Math.max(0,cGlobalLightInt);
 
 			if (!SIMULATE)
@@ -1406,7 +1427,7 @@ function initSound()
         }
 
     function freezeSimulation(freeze)
-      { ACTIVATED=true;
+      { STARTED=true;
       	SIMULATE=!freeze;
       	if (!MUTED)
       	{

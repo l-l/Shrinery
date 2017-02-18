@@ -178,9 +178,9 @@
         var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false; 	//initial state of shadows, can be changed at runtime
 		if (UHQ) ENABLESHADOWS=true;
-        var HIGHESTOBJECT=20;		//time to restart the scence in seconds 26
+        var HIGHESTOBJECT=20;		//the highest object for calculation of the ountdown
         var MUTED=false;		// sound muted, changed at runtime
-        var DEBUG=true;		//display stats
+        var DEBUG=false;		//display stats
 
         var collapseTime
         var plinthHeight=0; 	// stores the height of the plinth for the layoutheights matrix 
@@ -1002,13 +1002,16 @@ function initSound()
             //	 createAura();
 		}
 	function createRemoveableBodies()
-	    {
-	    	for (var i=3;i<30;i++)
+	    {var amount=30;
+	     var yMult=0.6;
+	     HIGHESTOBJECT=amount*yMult;
+
+	    	for (var i=3;i<amount;i++)
 			 {	 var x=Math.round(Math.random()*9);
 				 var y=Math.round(Math.random()*9);
 				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
 				 var h=Math.min(4,Math.max(1,Math.round(Math.random()*(10-y))));
-				 createLayoutTable(x,y, w,h, i*0.6, true);
+				 createLayoutTable(x,y, w,h, i*yMult, true);
 			 }
 		
 	    }
@@ -1125,7 +1128,7 @@ function initSound()
 	  		
 
 	  		}
-	  	countdown=Math.max(0,(cmaxY-osY)/(HIGHESTOBJECT-osY));
+	  	countdown=Math.min(countdown,Math.max(0,(cmaxY-osY)/(HIGHESTOBJECT-osY)));
 	  	//console.log(countdown);
 	  	}
 // THE MAIN RENDER LOOP ----------------------------------------------------------------------------------------

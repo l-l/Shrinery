@@ -12,74 +12,74 @@
     	<!--button scripts ################################################################################################## -->
 	    <script type="text/javascript">
 
-	     function butInfoToggle()
-		  { //toggleQuality();
-		  	var ip=document.getElementById("infoPanel");
-			var el=document.getElementById("imgInfo")
-		  	if (ip.className=="infoPanel") 	
-			  {ip.className = "infoPanel hidden";
-			   el.setAttribute("class", "default"); 
-			  }
-		  	else  
-			  {ip.className = "infoPanel";
-			  el.setAttribute("class", "active"); 
-			  }
-		  //	console.log("ya"+document.getElementById("butQuality"));
-		 
-		   
-		
-		  }
+	    function butInfoToggle()
+		  	{ 
+			  	var ip=document.getElementById("infoPanel");
+				var el=document.getElementById("imgInfo")
+			  	if (ip.className=="infoPanel") 	
+				  {ip.className = "infoPanel hidden";
+				   el.setAttribute("class", "default"); 
+				  }
+			  	else  
+				  {ip.className = "infoPanel";
+				  el.setAttribute("class", "active"); 
+				  }
+			}
 
 	    function butQualityToggle()
-		  { toggleQuality();
-		   var el=document.getElementById("imgQuality")
-		   
-		  	if (ENABLESHADOWS) el.setAttribute("class", "active"); 
-		  	else el.setAttribute("class", "default"); 
-		   showTooltip("shadows");
-		  }
+			{ 
+			 	toggleQuality();
+			   	var el=document.getElementById("imgQuality")
+			   
+			  	if (ENABLESHADOWS) el.setAttribute("class", "active"); 
+			  	else el.setAttribute("class", "default"); 
+			    showTooltip("shadows");
+			}
 
+		function butSoundToggle()
+		  	{ 
+			  	toggleSound();
+				//  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
+			 	// 	else document.getElementById("butSound").className = "sound";
+				var el=document.getElementById("imgSound")
+			   
+			  	if (MUTED) el.setAttribute("class", "active"); 
+			  	else el.setAttribute("class", "default"); 
+			  	showTooltip("sound");
+		  	}
 
+		function butStart()  // the initial click
+			 {
+			 	freezeSimulation(false);
+			 	document.getElementById("gui").style.visibility='visible';
+			 }
 
-		 function butSoundToggle()
-		  { toggleSound();
-		//  	if (MUTED) 	document.getElementById("butSound").className = "sound muted";
-		 // 	else document.getElementById("butSound").className = "sound";
-		var el=document.getElementById("imgSound")
-		   
-		  	if (MUTED) el.setAttribute("class", "active"); 
-		  	else el.setAttribute("class", "default"); 
-		  	showTooltip("sound");
-		  }
-
-		 function butActivate()
-		 {
-		 	freezeSimulation(false);
-		 	document.getElementById("gui").style.visibility='visible';
-		 }
-
-		 function showTooltip(txt)
-		   {   if (txt=="shadows")
+		function showTooltip(txt)
+		   {   
+		   		if (txt=="shadows")
 			   		{console.log("sh="+ENABLESHADOWS);
 			   		 if (ENABLESHADOWS)
-			   		  {txt="disable shadows";
-			   		  }
+				   	 	{txt="disable shadows";
+				   		}
 			   		 else txt="enable shadows";
 			   		}
+
 			   	if (txt=="sound")
 				   	{
 				   		if (MUTED)	txt="play sound";
 				   		else txt="mute sound";
 
 				   	}
+
 			   var el=document.getElementById("tooltip");
 			   el.innerHTML=txt;
 		   }
+
 	    </script>
 
     <div class="shrines">
         <div id="container" class="container"></div>
-        <button id="activate" class="activate" onclick="butActivate();this.style.visibility='hidden';">
+        <button id="activate" class="activate" onclick="butStart();this.style.visibility='hidden';">
 	        <div id="loadingBar" class="loadingBar"></div>
 	        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="100" height="89.96" viewBox="0 0 237.85 264.38"><defs><style>.cls-1{fill:#fff;}</style></defs><title>shrineCircular</title><path class="cls-1" d="M148.64,13.32l-3.5,3.09q-1.85-2.57-3.76-2.57a2.31,2.31,0,0,0-1.52.5,1.46,1.46,0,0,0-.59,1.12,1.94,1.94,0,0,0,.42,1.18,31.73,31.73,0,0,0,3.47,3.19c1.81,1.51,2.9,2.46,3.28,2.85a9.92,9.92,0,0,1,2,2.78,6.93,6.93,0,0,1,.6,2.9A6.65,6.65,0,0,1,147,33.41a7.73,7.73,0,0,1-5.51,2,8.18,8.18,0,0,1-4.62-1.3A10.29,10.29,0,0,1,133.46,30l4-2.4q1.79,3.29,4.13,3.29a3,3,0,0,0,2-.71,2.11,2.11,0,0,0,.83-1.64,2.82,2.82,0,0,0-.62-1.69,17.86,17.86,0,0,0-2.76-2.58,27.74,27.74,0,0,1-5.24-5.11,6.5,6.5,0,0,1-1.18-3.59,5.87,5.87,0,0,1,2-4.43,6.83,6.83,0,0,1,4.86-1.85,7.67,7.67,0,0,1,3.54.86A12.9,12.9,0,0,1,148.64,13.32Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M24.49,81.19l6.78-11.74,4,2.31-4.43,7.68,3.89,2.25L39.16,74l3.94,2.27L38.66,84l5.66,3.27,4.43-7.68,4,2.32L46,93.61Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M32.52,216.36l-2.27-3.93L39.1,195l-14.16,8.17-2.36-4.1,21.52-12.42,2.27,3.94L37.56,208l14.11-8.15,2.36,4.1Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M144.1,273.69h-4.7V248.84h4.7Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M259.41,201.8l-2.51,4.34a16.65,16.65,0,0,1-3.56,4.71,6,6,0,0,1-3.52,1.21,7.47,7.47,0,0,1-4-1.1,6.86,6.86,0,0,1-3-3.07,7.07,7.07,0,0,1-.39-4.31l-12.51-.43,2.58-4.48,11.91.43.22-.38-9.11-5.26,2.36-4.1ZM248.63,201l-.74,1.28a5.78,5.78,0,0,0-1,3,2.22,2.22,0,0,0,1.28,1.72,2.39,2.39,0,0,0,1.44.35,2.36,2.36,0,0,0,1.32-.55,8.51,8.51,0,0,0,1.52-2.11l.65-1.12Z" transform="translate(-22.57 -9.31)"/><path class="cls-1" d="M251.49,68.13l2.4,4.15L245.78,77l4.15,7.18L258,79.47l2.39,4.14L238.91,96l-2.39-4.14L246,86.44l-4.15-7.18-9.43,5.45L230,80.55Z" transform="translate(-22.57 -9.31)"/></svg><!--<img src="img/shrineCircular.svg">-->
 	        	
@@ -170,7 +170,7 @@
 		    document.getElementById( 'container' ).innerHTML = "";
 		}
 
-		var UHQ=true; // Ultra High Quality for snapshot
+		var UHQ=false; // Ultra High Quality for snapshot
 		var SIMULATE=false;   //physics simulation running?
 		var STARTED=false; // initially the scene is paused and needs to be clicked once to start, threejs is rendering (ACTIVATED)
 		var ACTIVATED=true; // threejs rendering is on 
@@ -178,13 +178,14 @@
         var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false; 	//initial state of shadows, can be changed at runtime
 		if (UHQ) ENABLESHADOWS=true;
-        var COLLAPSETIME=26;		//time to restart the scence in seconds 26
+        var HIGHESTOBJECT=20;		//time to restart the scence in seconds 26
         var MUTED=false;		// sound muted, changed at runtime
-        var DEBUG=false;		//display stats
+        var DEBUG=true;		//display stats
 
+        var collapseTime
         var plinthHeight=0; 	// stores the height of the plinth for the layoutheights matrix 
         var plinth;
-        var countdown=COLLAPSETIME;	// the countdown to the next restart
+        var countdown=1;	// the countdown to the next restart
         var makeSnapshot=false;
         var frm=0;					// frame counter, for rendering the physics engine only every 2nd frame
 
@@ -288,7 +289,7 @@ function reset()
       
       removeableBodies = [];
 
-      countdown=COLLAPSETIME;
+      countdown=1;
 	  light1PulseAng=0;
 	  light2PulseAng=0;
 	  light3PulseAng=0;
@@ -768,7 +769,7 @@ function initSound()
 		    context.fillStyle = 'white';
 		  //  context.fillRect(0, 0, canvas.width*asp, canvas.height);
 		 //   context.fillStyle = 'black';
-		  //  context.fillRect(10, 10, canvas.width*asp - 20, (canvas.height - 20)*( 1 -Math.min(1,countdown/COLLAPSETIME))  );
+		  //  context.fillRect(10, 10, canvas.width*asp - 20, (canvas.height - 20)*( 1 -Math.min(1,countdown))  );
 		    var img = new Image();
 			
 			img.onload = function() {
@@ -780,7 +781,7 @@ function initSound()
 		  //  context.textBaseline = "middle";
 		  //  context.fillText( Math.round(countdown), canvas.width*asp / 2, canvas.height / 2);
 
-		  	var h= Math.min(1,countdown/COLLAPSETIME)*canvas.height;
+		  	var h= Math.min(1,countdown)*canvas.height;
 		    context.fillRect(0,canvas.height-h, canvas.width*asp - 20, h)  ;
 		    tex_canvas.repeat.set(asp,1);
 		    tex_canvas.needsUpdate = true;
@@ -813,7 +814,7 @@ function initSound()
  					ANTIALIAS=false;
 				}
 
-				scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/60 }); //{ reportsize: 50, fixedTimeStep: 1/60 }
+				scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/60 }); //{ reportsize: 50, fixedTimeStep: 1/60 }  // use 1/30 in combination with the framerateLimitter to 1000/30 timeout call
 			
            	initCamera();
            	initRenderer();
@@ -1002,7 +1003,7 @@ function initSound()
 		}
 	function createRemoveableBodies()
 	    {
-	    	for (var i=3;i<34;i++)
+	    	for (var i=3;i<30;i++)
 			 {	 var x=Math.round(Math.random()*9);
 				 var y=Math.round(Math.random()*9);
 				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
@@ -1113,10 +1114,25 @@ function initSound()
         	
 		}
 
+	function checkHighestObjects()
+	  	{var cmaxY=0;
+	  	 
+	  	 var osY=4; // at which y the countdown will be 0
+
+	  		for (var lt in layoutTables)
+	  		{	var p=(layoutTables[lt].top.position.y/WORLDSCALE);
+	  			if (p<=HIGHESTOBJECT) cmaxY=Math.max(cmaxY,p); // prevent objects that are thrown up (and never come down)
+	  		
+
+	  		}
+	  	countdown=Math.max(0,(cmaxY-osY)/(HIGHESTOBJECT-osY));
+	  	//console.log(countdown);
+	  	}
 // THE MAIN RENDER LOOP ----------------------------------------------------------------------------------------
 
 	function render() 
         { // console.log("render");
+        checkHighestObjects();
         	if (ACTIVATED)
 				{
 		           var delta=clock.getDelta();
@@ -1124,8 +1140,8 @@ function initSound()
 		          	frm++;
 		          
 		            if (SIMULATE)// && frm%1==0) 
-		            	{scene_physi.simulate(delta, 10 ); //timestep, maxsteps
-		           		 countdown-=delta;
+		            	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
+		           		 //countdown-=delta;
 		           		}
 		            if (countdown<=0 && !resetting) 
 		            	{prepareReset();
@@ -1161,10 +1177,10 @@ function initSound()
 					setTimeout( function() 
 						{  //limit the framerate to 30 fps
 
-							requestAnimationFrame( render ); //	if (delta<160) 
+							//requestAnimationFrame( render ); //	if (delta<160) 
 
 						}, 1000 / 30 );
-						
+						requestAnimationFrame( render ); //	if (delta<160) 
 					/*
 					if (makeSnapshot && UHQ)
 						{	light1.intensity=1;
@@ -1326,7 +1342,7 @@ function initSound()
             light3.obj.material.opacity=(cGlobalLightInt*l3Int)+l3IntOs;
 
             var h=0;
-            screenLight.intensity=  (countdown/COLLAPSETIME)*cGlobalLightInt;//Math.sin(t*0.025)/2+0.5;
+            screenLight.intensity=  (countdown)*cGlobalLightInt;//Math.sin(t*0.025)/2+0.5;
            // screenLight.color.setHSL(h,0,screenLight.intensity);
 	        screenObj.material.color.setHSL(h,0,cGlobalLightInt);
             /*
@@ -1378,8 +1394,8 @@ function initSound()
 				 audioOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*globalV));
 				 audioOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*globalV));
 
-				 audioKling.setVolume((1-(countdown/COLLAPSETIME))*0.3);
-				 audioBgloop.setVolume((countdown/COLLAPSETIME)*0.2);
+				 audioKling.setVolume((1-(countdown))*0.3);
+				 audioBgloop.setVolume((countdown)*0.2);
 				 
 				//console.log(globalV);
 				 }

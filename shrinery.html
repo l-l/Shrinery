@@ -170,55 +170,56 @@
 		    document.getElementById( 'container' ).innerHTML = "";
 		}
 
-		var UHQ=false; // Ultra High Quality for snapshot
-		var SIMULATE=false;   //physics simulation running?
-		var STARTED=false; // initially the scene is paused and needs to be clicked once to start, threejs is rendering (ACTIVATED)
-		var ACTIVATED=true; // threejs rendering is on 
-        var WORLDSCALE=40; //40  -- scale the whole world for slow-motion feeling
-        var ANTIALIAS=true;		//antialiasing setting for renderer >> changed in initWorld
+		var UHQ=false; 				// Ultra High Quality for snapshot only
+		var SIMULATE=false;   		//physics simulation running?
+		var STARTED=false; 			// initially the scene is paused and needs to be clicked once to start, threejs is rendering (ACTIVATED)
+		var ACTIVATED=true;			// threejs rendering on/off
+        var WORLDSCALE=40; 			//40  -- scale the whole world for slow-motion feeling
+        var ANTIALIAS=true;			//antialiasing setting for renderer >> changed in initWorld
         var ENABLESHADOWS=false; 	//initial state of shadows, can be changed at runtime
 		if (UHQ) ENABLESHADOWS=true;
-        var HIGHESTOBJECT=20;		//the highest object for calculation of the ountdown
-        var MUTED=false;		// sound muted, changed at runtime
-        var DEBUG=false;		//display stats
+        var HIGHESTOBJECT=20;		//the object with the highest y position for calculation of the countdown/restart
+        var MUTED=false;			//sound muted, can be changed at runtime
+        var DEBUG=false;			//display stats
 
         var collapseTime
-        var plinthHeight=0; 	// stores the height of the plinth for the layoutheights matrix 
+        var plinthHeight=0; 		// stores the height of the plinth for the layoutheights matrix after reset
         var plinth;
-        var countdown=1;	// the countdown to the next restart
+        var countdown=1;			// the countdown to the next restart
         var makeSnapshot=false;
         var frm=0;					// frame counter, for rendering the physics engine only every 2nd frame
 
-       // var timestep=1/1000;		// not really used anymore
-        
+               
 		// Graphics variables
 		var container, stats, physics_stats;
 		var camera, controls, scene_physi, renderer,skybox;
 		var textureLoader;
-		var tGlobalLightInt=1; //target light intensity, for animating light intensity
-		var cGlobalLightInt=1;
+		var tGlobalLightInt=1; 		//target light intensity, for animating light intensity
+		var cGlobalLightInt=1;		//current lightIntensity
 
 		var clock = new THREE.Clock();
-		var resetting=false;
+		var isResetting=false;		// true during reset
 		var resetInterval;
-		// Physics variables    // Physi.js
-		var physiBoxMaterial; // the standard material for most of the physical bodies
-	    var physiBodies = []; // all the physijs obj in the scene for the simulation
+
+		// Physics variables    
+
+	    var physiBodies = []; 		// all the physijs obj in the scene for the simulation
 	    var layoutTables=[];
-	    var removeableBodies=[];
+	    var removeableBodies=[];	// physic objects that are removed and recreated during reset
 		
-        var physi_ground;
-		var light1,light2,light3;
-		var light1PulseAng=0,light2PulseAng=0,light3PulseAng=0;
-		var screenLight;
-		
-		var ground_material;
+        var physi_ground;			
+        var ground_material;
+        var physiBoxMaterial; 		// the standard material for most of the physical bodies
 		var lineMaterial;
 		var skyBoxMaterial;
 		var cubeMaterial;
 		var cubeMaterialDull;
  
-        var screenObj;
+		var light1,light2,light3;
+		var light1PulseAng=0,light2PulseAng=0,light3PulseAng=0;
+		var screenLight;			
+		
+		var screenObj;				// the central screen object/model on the plinth
 
         // TEXTURES - all textures are global for easier load management
         var tex_stoneStaple;
@@ -226,7 +227,7 @@
         var tex_grid;
         
 
-        // for rendering the texture into the screen
+        // for rendering the dynamic texture into the screen
         var canvas, context, tex_canvas;
 
         // SOUND ------ 
@@ -257,546 +258,23 @@
         ];
 		
 
-function reset()
-    {layoutHeights=[
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],];
-      //     
-      updateLayoutHeights(2,3, 6,4, plinthHeight); // dirty fix - the plinth is not recreated, so the layoutHeights Matrix needs to have its heights
-
-      // if the plinth has moved (bug!!)
-      plinth.setAngularFactor(new THREE.Vector3( 0, 0, 0 )); 
-			plinth.setLinearFactor(new THREE.Vector3( 0, 0, 0 )); 
-			plinth.position.set(0, plinthHeight*WORLDSCALE/2, 0);
-			plinth.__dirtyPosition = true;
-			plinth.rotation.set(0,0,0);
-			plinth.__dirtyRotation = true
-			plinth.mass=0;
-
-      for (var i=0;i<removeableBodies.length;i++)
-      {
-      	scene_physi.remove(removeableBodies[i]);
-      	renderer.dispose( physiBodies[i] );
-      }
-      
-      removeableBodies = [];
-
-      countdown=1;
-	  light1PulseAng=0;
-	  light2PulseAng=0;
-	  light3PulseAng=0;
-
-      createRemoveableBodies();
-      setTimeout(function() {resetInterval=setInterval(afterResetTO,25)}, 200);
-      //setTimeout(function() {SIMULATE=true}, 5000);
-      setTimeout(function(){freezeSimulation(false)},5000);
-
-    }
-
-
-function initSound()
-  {	
-	camera.add( listener );
-	audioFreezeloop.setVolume(0);
-	audioBgloop.setVolume(0);
-	audioRainrumba.setVolume(0);
-	audioRumba.setVolume(0);
-	if (audioBassic1.isPlaying) audioBassic1.stop();
-	if (audioBassic2.isPlaying) audioBassic2.stop();
-	if (audioBassic3.isPlaying) audioBassic3.stop();
-
-	if (audioBassic1_1.isPlaying) audioBassic1_1.stop();
-	if (audioBassic2_1.isPlaying) audioBassic2_1.stop();
-	if (audioBassic3_1.isPlaying) audioBassic3_1.stop();
-		
-
-	audioFrOsc1_1.setVolume(0);
-	audioFrOsc2_1.setVolume(0);
-	audioFrOsc3_1.setVolume(0);
-
-	audioFrOsc1_2.setVolume(0);
-	audioFrOsc2_2.setVolume(0);
-	audioFrOsc3_2.setVolume(0);
-
-	audioOsc1_1.setVolume(0);
-	audioOsc2_1.setVolume(0);
-	audioOsc3_1.setVolume(0);
-
-	audioOsc1_2.setVolume(0);
-	audioOsc2_2.setVolume(0);
-	audioOsc3_2.setVolume(0);
-
-	if (audioOsc1_1.isPlaying) audioOsc1_1.stop();
-	if (audioOsc1_2.isPlaying) audioOsc1_2.stop();
-	if (audioOsc2_1.isPlaying) audioOsc2_1.stop();
-	if (audioOsc2_2.isPlaying) audioOsc2_2.stop();
-	if (audioOsc3_1.isPlaying) audioOsc3_1.stop();
-	if (audioOsc3_2.isPlaying) audioOsc3_2.stop();
-	if (audioOsc1_1.isPlaying) audioFrOsc1_1.stop();
-	if (audioOsc1_2.isPlaying) audioFrOsc1_2.stop();
-	if (audioOsc2_1.isPlaying) audioFrOsc2_1.stop();
-	if (audioOsc2_2.isPlaying) audioFrOsc2_2.stop();
-	if (audioOsc3_1.isPlaying) audioFrOsc3_1.stop();
-	if (audioOsc3_2.isPlaying) audioFrOsc3_2.stop();
-
 	
-	 
-  }
+	
+
+	// INIT FUNCTIONS ---------------------------------------------------------------------------------------------
 
 
-		
-		function initCamera()
-		 { // CAMERA
-			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2*WORLDSCALE, 180*WORLDSCALE );
-			camera.position.x = 10*WORLDSCALE;
-			camera.position.y = 10*WORLDSCALE;
-			camera.position.z =  20*WORLDSCALE;
-			//camera.lookAt(0,0,0);
-			controls = new THREE.OrbitControls( camera );
-			controls.autoRotate = true;
-			controls.autoRotateSpeed = -0.1;
-			controls.userPan=false;
-			controls.rotateSpeed=0.1;
-			
-			controls.userPanSpeed = 0.001;
-			controls.enableDamping = true;
-			controls.dampingFactor = 0.06;
-			controls.maxPolarAngle = 1.7; // stay above ground 
-			controls.target.y = 6*WORLDSCALE;
-			controls.minDistance = 15*WORLDSCALE;
-			controls.maxDistance = 25*WORLDSCALE;
-			controls.enablePan = false;
-			controls.enableZoom = false;
-			controls.momentumScalingFactor=0.00001;
-			scene_physi.add(camera); // only necessary because the skybox is CHILD of the cam
-
-		 }
-
-		 function initRenderer()
-		 {	
-			 var pixelratio = window.devicePixelRatio || 1;
-			 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
-				{
- 					ENABLESHADOWS=false;
- 					ANTIALIAS=false;
-				}
-			if (pixelratio>1.25) ANTIALIAS=false;
-			if (UHQ) ANTIALIAS=true;
-			renderer = new THREE.WebGLRenderer({antialias:ANTIALIAS});
-			renderer.setClearColor( 0x000);
-			//renderer.gammaInput = true;
-			//renderer.gammaOutput = true;
-			
-			console.log("ratio="+pixelratio);
-			renderer.setPixelRatio(pixelratio);
-			onWindowResize();  // set rendersize, 
-
-
-			renderer.shadowMap.enabled = true;
-			renderer.shadowMap.type=THREE.PCFSoftShadowMap; //THREE.BasicShadowMap, THREE.PCFShadowMap (default), THREE.PCFSoftShadowMap
-			renderer.shadowMapSoft=true;
-		 }
-
-		 function initLights()
-		 {
-			var ambientLight = new THREE.AmbientLight( 0x111111 );
-			//scene_physi.add( ambientLight );
-			
-
-				// LIGHTS
-				var mapsize=256;
-	            var d = 10*WORLDSCALE;
-	            var intensity=0;
-	            var dist=30*WORLDSCALE;
-	            var decay=8;
-            	var sphere = new THREE.SphereGeometry( 0.1*WORLDSCALE, 12, 8 );
-				
-				if (UHQ) mapsize=2048;
-
-				var col=0xffbfa3;//ffd0bc
-				light1 = new THREE.PointLight( col, intensity, dist,decay ); //color, intensity, distance, decay (default is 1, 2 is phyical correct)
-				var obj1= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
-				light1.add(obj1);
-				light1.obj=obj1;
-				light1.castShadow=ENABLESHADOWS;
-				light1.shadow.mapSize.x = mapsize; light1.shadow.mapSize.y = mapsize;
-                light1.shadow.camera.left = -d; light1.shadow.camera.right = d;	light1.shadow.camera.top = d;	light1.shadow.camera.bottom = -d;
-    		    light1.shadow.camera.near = 2;  light1.shadow.camera.far = 200*WORLDSCALE;
-				scene_physi.add( light1 );
-
-				col=0xffe8bc;
-				light2 = new THREE.PointLight( col, intensity, dist,decay );
-				var obj2= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
-				light2.add(obj2);
-				light2.obj=obj2;
-				light2.castShadow=ENABLESHADOWS;
-				light2.shadow.mapSize.x = mapsize; light2.shadow.mapSize.y = mapsize;
-                light2.shadow.camera.left = -d; light2.shadow.camera.right = d;	light2.shadow.camera.top = d;	light2.shadow.camera.bottom = -d;
-    		    light2.shadow.camera.near = 2;  light2.shadow.camera.far = 100*WORLDSCALE;
-				scene_physi.add( light2 );
-
-				col=0x7b8fff2;//ffbc5e;
-				light3 = new THREE.PointLight( col,intensity,dist,decay );
-				var obj3= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
-				light3.add(obj3);
-				light3.obj=obj3;
-				light3.castShadow=ENABLESHADOWS;
-				light3.shadow.mapSize.x = mapsize; light3.shadow.mapSize.y = mapsize;
-                light3.shadow.camera.left = -d; light3.shadow.camera.right = d;	light3.shadow.camera.top = d;	light3.shadow.camera.bottom = -d;
-    		    light3.shadow.camera.near = 2;  light3.shadow.camera.far = 100*WORLDSCALE;
-				scene_physi.add( light3 );
-				
-		}
-
-		function manageLoading()
-			{	var loader = new THREE.TextureLoader();
-				//tex_stoneStaple = 	loader.load( "img/staple.jpg" );
-				
-				
-
-				tex_grid =			loader.load( "img/grid.png" );
-
-				var skypath = "img/sky54/";
-				var skyformat = '.jpg';
-				var skyurls = [
-						skypath + 'px' + skyformat, skypath + 'nx' + skyformat,
-						skypath + 'py' + skyformat, skypath + 'ny' + skyformat,
-						skypath + 'pz' + skyformat, skypath + 'nz' + skyformat
-					];
-				tex_reflectionCube = new THREE.CubeTextureLoader().load( skyurls );
-
-				// AUDIO INIT -----------------------------------------------------------------------------------
-
-				listener = new THREE.AudioListener();
-				audioBgloop = new THREE.Audio( listener );
-				bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.mp3', function( buffer ) {
-					audioBgloop.setBuffer( buffer );
-					audioBgloop.setLoop(true);
-					audioBgloop.setVolume(0);
-					
-					audioBgloop.play();
-				});
-
-						audioFreezeloop = new THREE.Audio( listener );
-				freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.mp3', function( buffer ) {
-					audioFreezeloop.setBuffer( buffer );
-					audioFreezeloop.setLoop(true);
-					audioFreezeloop.setVolume(0);
-					
-					audioFreezeloop.play();
-				});
-			
-				audioRumba = new THREE.Audio( listener );
-				rumba = new THREE.AudioLoader().load( 'snd/rumba.mp3', function( buffer ) {
-					audioRumba.setBuffer( buffer );
-					audioRumba.setLoop(true);
-					audioRumba.setVolume(0);
-			
-					audioRumba.play();
-				});
-
-				audioRainrumba = new THREE.Audio( listener );
-				rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.mp3', function( buffer ) {
-					audioRainrumba.setBuffer( buffer );
-					audioRainrumba.setLoop(true);
-					audioRainrumba.setVolume(0);
-					
-					audioRainrumba.play();
-				});
-
-				audioOsc1_1 = new THREE.Audio( listener );
-				snd_osc1_1 = new THREE.AudioLoader().load( 'snd/sph_3_1.wav', function( buffer ) {
-					audioOsc1_1.setBuffer( buffer );
-					audioOsc1_1.setLoop(true);
-					audioOsc1_1.setVolume(0);
-					
-					audioOsc1_1.play();
-				});
-				//listener = new THREE.AudioListener();
-				audioOsc2_1 = new THREE.Audio( listener );
-				snd_osc2_1 = new THREE.AudioLoader().load( 'snd/sph_2_1.wav', function( buffer ) {
-					audioOsc2_1.setBuffer( buffer );
-					audioOsc2_1.setLoop(true);
-					audioOsc2_1.setVolume(0);
-
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioOsc2_1.play();
-				});
-				
-				//listener = new THREE.AudioListener();
-				audioOsc3_1 = new THREE.Audio( listener );
-				snd_osc3_1 = new THREE.AudioLoader().load( 'snd/sph_1_1.wav', function( buffer ) {
-					audioOsc3_1.setBuffer( buffer );
-					audioOsc3_1.setLoop(true);
-					audioOsc3_1.setVolume(0);
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioOsc3_1.play();
-				});
-
-				audioOsc1_2 = new THREE.Audio( listener );
-				snd_osc1_2 = new THREE.AudioLoader().load( 'snd/sph_3_2.wav', function( buffer ) {
-					audioOsc1_2.setBuffer( buffer );
-					audioOsc1_2.setLoop(true);
-					audioOsc1_2.setVolume(0);
-					
-					audioOsc1_2.play();
-				});
-				//listener = new THREE.AudioListener();
-				audioOsc2_2 = new THREE.Audio( listener );
-				snd_osc2_2 = new THREE.AudioLoader().load( 'snd/sph_2_2.wav', function( buffer ) {
-					audioOsc2_2.setBuffer( buffer );
-					audioOsc2_2.setLoop(true);
-					audioOsc2_2.setVolume(0);
-
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioOsc2_2.play();
-				});
-				
-				//listener = new THREE.AudioListener();
-				audioOsc3_2 = new THREE.Audio( listener );
-				snd_osc3_2 = new THREE.AudioLoader().load( 'snd/sph_1_2.wav', function( buffer ) {
-					audioOsc3_2.setBuffer( buffer );
-					audioOsc3_2.setLoop(true);
-					audioOsc3_2.setVolume(0);
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioOsc3_2.play();
-				});
-
-				audioFrOsc1_1 = new THREE.Audio( listener );
-				snd_Frosc1_1 = new THREE.AudioLoader().load( 'snd/sph_fr_3_1.wav', function( buffer ) {
-					audioFrOsc1_1.setBuffer( buffer );
-					audioFrOsc1_1.setLoop(true);
-					audioFrOsc1_1.setVolume(0);
-					
-					audioFrOsc1_1.play();
-				});
-				//listener = new THREE.AudioListener();
-				audioFrOsc2_1 = new THREE.Audio( listener );
-				snd_Frosc2_1 = new THREE.AudioLoader().load( 'snd/sph_fr_2_1.wav', function( buffer ) {
-					audioFrOsc2_1.setBuffer( buffer );
-					audioFrOsc2_1.setLoop(true);
-					audioFrOsc2_1.setVolume(0);
-
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioFrOsc2_1.play();
-				});
-				
-				//listener = new THREE.AudioListener();
-				audioFrOsc3_1 = new THREE.Audio( listener );
-				snd_Frosc3_1 = new THREE.AudioLoader().load( 'snd/sph_fr_1_1.wav', function( buffer ) {
-					audioFrOsc3_1.setBuffer( buffer );
-					audioFrOsc3_1.setLoop(true);
-					audioFrOsc3_1.setVolume(0);
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioFrOsc3_1.play();
-				});
-
-				audioFrOsc1_2 = new THREE.Audio( listener );
-				snd_Frosc1_2 = new THREE.AudioLoader().load( 'snd/sph_fr_3_2.wav', function( buffer ) {
-					audioFrOsc1_2.setBuffer( buffer );
-					audioFrOsc1_2.setLoop(true);
-					audioFrOsc1_2.setVolume(0);
-				
-					audioFrOsc1_2.play();
-				});
-				//listener = new THREE.AudioListener();
-				audioFrOsc2_2 = new THREE.Audio( listener );
-				snd_Frosc2_2 = new THREE.AudioLoader().load( 'snd/sph_fr_2_2.wav', function( buffer ) {
-					audioFrOsc2_2.setBuffer( buffer );
-					audioFrOsc2_2.setLoop(true);
-					audioFrOsc2_2.setVolume(0);
-
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioFrOsc2_2.play();
-				});
-				
-				//listener = new THREE.AudioListener();
-				audioFrOsc3_2 = new THREE.Audio( listener );
-				snd_Frosc3_2 = new THREE.AudioLoader().load( 'snd/sph_fr_1_2.wav', function( buffer ) {
-					audioFrOsc3_2.setBuffer( buffer );
-					audioFrOsc3_2.setLoop(true);
-					audioFrOsc3_2.setVolume(0);
-			//		audioOsc3.setRefDistanc(20*WORLDSCALE);
-					audioFrOsc3_2.play();
-				});
-				
-
-				//listener = new THREE.AudioListener();
-				audioBassic1 = new THREE.Audio( listener );
-				snd_Bassic1 = new THREE.AudioLoader().load( 'snd/bassic_1.mp3', function( buffer ) {
-					audioBassic1.setBuffer( buffer );
-					audioBassic1.setLoop(false);
-					audioBassic1.setVolume(0);
-					audioBassic1.play();
-				});
-				audioBassic2 = new THREE.Audio( listener );
-				snd_Bassic2 = new THREE.AudioLoader().load( 'snd/bassic_2.mp3', function( buffer ) {
-					audioBassic2.setBuffer( buffer );
-					audioBassic2.setLoop(false);
-					audioBassic2.setVolume(0);
-					audioBassic2.play();
-				});
-				audioBassic3 = new THREE.Audio( listener );
-				snd_Bassic3 = new THREE.AudioLoader().load( 'snd/bassic_3.mp3', function( buffer ) {
-					audioBassic3.setBuffer( buffer );
-					audioBassic3.setLoop(false);
-					audioBassic3.setVolume(0);
-					audioBassic3.play();
-				});
-
-				audioBassic1_1 = new THREE.Audio( listener );
-				snd_Bassic1_1 = new THREE.AudioLoader().load( 'snd/bassic_4.mp3', function( buffer ) {
-					audioBassic1_1.setBuffer( buffer );
-					audioBassic1_1.setLoop(false);
-					audioBassic1_1.setVolume(0);
-					audioBassic1_1.play();
-				});
-				audioBassic2_1 = new THREE.Audio( listener );
-				snd_Bassic2_1 = new THREE.AudioLoader().load( 'snd/bassic_5.mp3', function( buffer ) {
-					audioBassic2_1.setBuffer( buffer );
-					audioBassic2_1.setLoop(false);
-					audioBassic2_1.setVolume(0);
-					audioBassic2_1.play();
-				});
-				audioBassic3_1 = new THREE.Audio( listener );
-				snd_Bassic3_1 = new THREE.AudioLoader().load( 'snd/bassic_6.mp3', function( buffer ) {
-					audioBassic3_1.setBuffer( buffer );
-					audioBassic3_1.setLoop(false);
-					audioBassic3_1.setVolume(0);
-					audioBassic3_1.play();
-				});
-
-				//listener = new THREE.AudioListener();
-				audioKling = new THREE.Audio( listener );
-				snd_Kling = new THREE.AudioLoader().load( 'snd/klingeling.mp3', function( buffer ) {
-					audioKling.setBuffer( buffer );
-					audioKling.setLoop(true);
-					audioKling.setVolume(0);
-					audioKling.play();
-				});
-
-
-				//---------------------------------------------------------------------------
-				
-				
-
-				THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-
-				//console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-				
-
-				};
-
-				THREE.DefaultLoadingManager.onLoad = function ( ) {
-
-					//console.log( 'Loading Complete!'); 
-					console.log("")
-					setTimeout(initWorld,100);  // otherwise the sound loader produces an error (because the file seems to be not there yet)
-					console.log("there might always be beginnings")
-
-				};
-
-
-				THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-
-				//	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-				//var el=document.getElementById("loadingBar");
-				document.getElementById("loadingBar").style.width=(1-itemsLoaded/itemsTotal)*60;
-
-				};
-
-				THREE.DefaultLoadingManager.onError = function ( url ) {
-
-					console.log( 'There was an error loading ' + url );
-
-				}
-				
-			}
-
-
-		// RESTARTING -----------------------------------------------
-
-		function prepareReset()
-			{//	SIMULATE=false;
-				freezeSimulation(true);
-				tGlobalLightInt=-0.5;
-				resetting=true;
-				clearInterval(resetInterval);
-				resetInterval=setInterval(prepareResetTO,25);
-				
-
-			}
-		function prepareResetTO()
-			{	//scene_physi.background.transparent=true;
-				//scene_physi.background.opacity=0
-				//skybox.material.opacity=0;
-				skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
-				;
-				if (light1.intensity<=0) 
-					{clearInterval(resetInterval)
-					 reset();
-					}
-			}
-		function afterResetTO()
-		   {skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
-		    //freezeSimulation(false);
-		  
-		   	tGlobalLightInt=1;
-		   	if (light1.intensity>=0.9) 
-					{clearInterval(resetInterval)
-					 skyBoxMaterial.uniforms.opacity= { type: "f", value: 1  };
-					 resetting=false;
-					}
-		   	
-
-		   }
-
-
-
-		function updateTexCanvas()
-		  {	
-		  	// canvas w 512 >> use only 512*9/16 
-		  	var asp=9/16;
-		  //	context.font = '30pt Arial';
-		    context.fillStyle = 'white';
-		  //  context.fillRect(0, 0, canvas.width*asp, canvas.height);
-		 //   context.fillStyle = 'black';
-		  //  context.fillRect(10, 10, canvas.width*asp - 20, (canvas.height - 20)*( 1 -Math.min(1,countdown))  );
-		    var img = new Image();
-			
-			img.onload = function() {
-    			context.drawImage(img, 0, 0, canvas.width*asp , canvas.height);
-				}
-			img.src = 'img/staple.jpg';
-		  //  context.fillStyle = 'black';
-		 //   context.textAlign = "center";
-		  //  context.textBaseline = "middle";
-		  //  context.fillText( Math.round(countdown), canvas.width*asp / 2, canvas.height / 2);
-
-		  	var h= Math.min(1,countdown)*canvas.height;
-		    context.fillRect(0,canvas.height-h, canvas.width*asp - 20, h)  ;
-		    tex_canvas.repeat.set(asp,1);
-		    tex_canvas.needsUpdate = true;
-		  }
-
-
-
-		// MAIN INIT  
-		function initWorld() {
+	// MAIN INIT  
+	function initWorld() 
+		{
 			if (UHQ)
-			{ENABLESHADOWS=true;
-			 document.getElementById("gui").style.visibility=false;
-			}
+				{ENABLESHADOWS=true;
+				 document.getElementById("gui").style.visibility=false;
+				}
 
 			container = document.getElementById( 'container' );
+
+			// canvas for creating the dynamic texture
 			canvas=document.createElement("canvas");
 			canvas.width=512;
 			canvas.height=512;
@@ -805,37 +283,20 @@ function initSound()
    			tex_canvas=new THREE.Texture(canvas, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
    			tex_canvas.repeatS
    			tex_canvas.needsUpdate=true;
-   		//	tex_canvas.minFilter=THREE.NearestMipMapLinearFilter;
+   			//	tex_canvas.minFilter=THREE.NearestMipMapLinearFilter;
    			lineMaterial=new THREE.LineBasicMaterial({color:0xffffff});//( color, linewidth, linecap, linejoin, vertexColors );
 
-			if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
-				{
- 					ENABLESHADOWS=false;
- 					ANTIALIAS=false;
-				}
-
-				scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/60 }); //{ reportsize: 50, fixedTimeStep: 1/60 }  // use 1/30 in combination with the framerateLimitter to 1000/30 timeout call
+			scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/60 }); //{ reportsize: 50, fixedTimeStep: 1/60 }  // use 1/30 in combination with the framerateLimitter to 1000/30 timeout call
 			
            	initCamera();
            	initRenderer();
            	initSound();
+           	initLights();
+           	initInput();
             //SCENE Physi
             
             scene_physi.setGravity(new THREE.Vector3( 0, -10, 0 ));
-            scene_physi.addEventListener(
-                'update',
-                function() {
-					//var deltaTime = clock.getDelta();
-                    
-						
-					//	if (SIMULATE) scene_physi.simulate(timestep, 0.5 ); //timestep, maxsteps
-                    if (DEBUG) physics_stats.update();
-				   
-                }
-            );
-
             
-            initLights();
 
             /*
 			// REFLECTION -------------------------------------------------------
@@ -908,117 +369,36 @@ function initSound()
             
             // STATS
             if (DEBUG)
-            {
-           
+	            {
+	           
+	           	scene_physi.addEventListener(
+		                'update',
+		                function() 
+			                {
+								physics_stats.update();
+							   
+			                }
+            		);
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
 
-			stats = new Stats();
-			stats.domElement.style.position = 'absolute';
-			stats.domElement.style.top = '0px';
-			container.appendChild( stats.domElement );
+				physics_stats = new Stats();
+				physics_stats.domElement.style.position = 'absolute';
+				physics_stats.domElement.style.top = '50px';
+				physics_stats.domElement.style.zIndex = 100;
+				container.appendChild( physics_stats.domElement );
+				}
 
-			physics_stats = new Stats();
-			physics_stats.domElement.style.position = 'absolute';
-			physics_stats.domElement.style.top = '50px';
-			physics_stats.domElement.style.zIndex = 100;
-			container.appendChild( physics_stats.domElement );
-			}
-
-			initInput();
+			
 
 			
 			
 		}
 
-
-/// PHYSICALS 
-	
-
-	
-
-
-    
-
-	
-	function updateLayoutHeights(x,y ,w,h, value) // all integers 0...9
-        {   
-            for (var ix=x;ix<w+x;ix++)
-                {
-                    for (var iy=y;iy<h+y;iy++)
-                        {
-                         layoutHeights[ix][iy]= value;
-                        // console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
-                        }
-                }
-            
-        }
-     function checkLayoutHeightViolation(x,y ,w,h, value) // all integers 0...9
-        {   var violation=false;
-        	
-            for (var ix=x;ix<w+x;ix++)
-                {
-                    for (var iy=y;iy<h+y;iy++)
-                        {
-                         if (layoutHeights[ix][iy]>value) violation=true;
-                         //console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
-                        }
-                }
-
-         return violation   
-        }
-
-   function checkLayoutMaxHeight(x,y ,w,h, value) // all integers 0...9
-        {   var violation=false;
-        	var maxValue=0;
-            for (var ix=x;ix<w+x;ix++)
-                {
-                    for (var iy=y;iy<h+y;iy++)
-                        {maxValue=Math.max(layoutHeights[ix][iy],maxValue)
-                         if (layoutHeights[ix][iy]>value) violation=true;
-                        // console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
-                        }
-                }
-
-         return maxValue   
-        }
-
-	function ready()
-		{//console.log("ready");
-		}
-
-
-  
-	
-	function createStaticBodies() 
-		{	
-			physiBoxMaterial= Physijs.createMaterial(
-					new THREE.MeshPhongMaterial(), //cubeMaterialDull,//
-					.6, // medium friction
-					.3 // low restitution
-				);
-
-			
-            createPlinth();
-            createScreen(9/4,16/4,6);
-            //	 createAura();
-		}
-	function createRemoveableBodies()
-	    {var amount=30;
-	     var yMult=0.6;
-	     HIGHESTOBJECT=amount*yMult;
-
-	    	for (var i=3;i<amount;i++)
-			 {	 var x=Math.round(Math.random()*9);
-				 var y=Math.round(Math.random()*9);
-				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
-				 var h=Math.min(4,Math.max(1,Math.round(Math.random()*(10-y))));
-				 createLayoutTable(x,y, w,h, i*yMult, true);
-			 }
-		
-	    }
-		
-		function initInput() {
-
-		    window.addEventListener( 'keydown', function( event ) {
+	function initInput() 
+		{   window.addEventListener( 'keydown', function( event ) {
 
 			    switch ( event.keyCode ) {
 				    // Q
@@ -1061,13 +441,630 @@ function initSound()
 		    }, false );
 
 		    document.getElementById("container").addEventListener( 'mousedown', function( event ) {
-		    	if(!resetting) freezeSimulation(true);
+		    	if(!isResetting) freezeSimulation(true);
 		    }, false );
 		    document.getElementById("container").addEventListener( 'mouseup', function( event ) {
-		    	if(!resetting) freezeSimulation(false);
+		    	if(!isResetting) freezeSimulation(false);
 		    }, false );
+		 }
+
+	function initSound()
+	  	{	
+			camera.add( listener );
+			audioFreezeloop.setVolume(0);
+			audioBgloop.setVolume(0);
+			audioRainrumba.setVolume(0);
+			audioRumba.setVolume(0);
+			if (audioBassic1.isPlaying) audioBassic1.stop();
+			if (audioBassic2.isPlaying) audioBassic2.stop();
+			if (audioBassic3.isPlaying) audioBassic3.stop();
+
+			if (audioBassic1_1.isPlaying) audioBassic1_1.stop();
+			if (audioBassic2_1.isPlaying) audioBassic2_1.stop();
+			if (audioBassic3_1.isPlaying) audioBassic3_1.stop();
+				
+
+			audioFrOsc1_1.setVolume(0);
+			audioFrOsc2_1.setVolume(0);
+			audioFrOsc3_1.setVolume(0);
+
+			audioFrOsc1_2.setVolume(0);
+			audioFrOsc2_2.setVolume(0);
+			audioFrOsc3_2.setVolume(0);
+
+			audioOsc1_1.setVolume(0);
+			audioOsc2_1.setVolume(0);
+			audioOsc3_1.setVolume(0);
+
+			audioOsc1_2.setVolume(0);
+			audioOsc2_2.setVolume(0);
+			audioOsc3_2.setVolume(0);
+
+			if (audioOsc1_1.isPlaying) audioOsc1_1.stop();
+			if (audioOsc1_2.isPlaying) audioOsc1_2.stop();
+			if (audioOsc2_1.isPlaying) audioOsc2_1.stop();
+			if (audioOsc2_2.isPlaying) audioOsc2_2.stop();
+			if (audioOsc3_1.isPlaying) audioOsc3_1.stop();
+			if (audioOsc3_2.isPlaying) audioOsc3_2.stop();
+			if (audioOsc1_1.isPlaying) audioFrOsc1_1.stop();
+			if (audioOsc1_2.isPlaying) audioFrOsc1_2.stop();
+			if (audioOsc2_1.isPlaying) audioFrOsc2_1.stop();
+			if (audioOsc2_2.isPlaying) audioFrOsc2_2.stop();
+			if (audioOsc3_1.isPlaying) audioFrOsc3_1.stop();
+			if (audioOsc3_2.isPlaying) audioFrOsc3_2.stop();
+		 
+		}
+
+
+			
+	function initCamera()
+		{ // CAMERA
+			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2*WORLDSCALE, 180*WORLDSCALE );
+			camera.position.x = 10*WORLDSCALE;
+			camera.position.y = 10*WORLDSCALE;
+			camera.position.z =  20*WORLDSCALE;
+			//camera.lookAt(0,0,0);
+			controls = new THREE.OrbitControls( camera );
+			controls.autoRotate = true;
+			controls.autoRotateSpeed = -0.1;
+			controls.userPan=false;
+			controls.rotateSpeed=0.1;
+			
+			controls.userPanSpeed = 0.001;
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.06;
+			controls.maxPolarAngle = 1.7; // stay above ground 
+			controls.target.y = 6*WORLDSCALE;
+			controls.minDistance = 15*WORLDSCALE;
+			controls.maxDistance = 25*WORLDSCALE;
+			controls.enablePan = false;
+			controls.enableZoom = false;
+			controls.momentumScalingFactor=0.00001;
+			scene_physi.add(camera); // only necessary because the skybox is CHILD of the cam
 
 		}
+
+
+	function initRenderer()
+		{	
+			var pixelratio = window.devicePixelRatio || 1;
+			if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
+				{
+ 					ENABLESHADOWS=false;
+ 					ANTIALIAS=false;
+				}
+			
+			if (pixelratio>1.25) ANTIALIAS=false;
+			if (UHQ) ANTIALIAS=true;
+			renderer = new THREE.WebGLRenderer({antialias:ANTIALIAS});
+			renderer.setClearColor( 0x000);
+			//renderer.gammaInput = true;
+			//renderer.gammaOutput = true;
+			
+			console.log("ratio="+pixelratio);
+			renderer.setPixelRatio(pixelratio);
+			onWindowResize();  // set rendersize, 
+
+
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type=THREE.PCFSoftShadowMap; //THREE.BasicShadowMap, THREE.PCFShadowMap (default), THREE.PCFSoftShadowMap
+			renderer.shadowMapSoft=true;
+		 }
+
+
+	function initLights()
+		{
+			var ambientLight = new THREE.AmbientLight( 0x111111 );
+			//scene_physi.add( ambientLight );
+			
+
+			var mapsize=256; if (UHQ) mapsize=2048;
+            var d = 10*WORLDSCALE;
+            var intensity=0;
+            var dist=30*WORLDSCALE;
+            var decay=8;
+        	var sphere = new THREE.SphereGeometry( 0.1*WORLDSCALE, 12, 8 );
+			
+			var col=0xffbfa3;//ffd0bc
+			light1 = new THREE.PointLight( col, intensity, dist,decay ); //color, intensity, distance, decay (default is 1, 2 is phyical correct)
+			var obj1= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+			light1.add(obj1);
+			light1.obj=obj1;
+			light1.castShadow=ENABLESHADOWS;
+			light1.shadow.mapSize.x = mapsize; light1.shadow.mapSize.y = mapsize;
+            light1.shadow.camera.left = -d; light1.shadow.camera.right = d;	light1.shadow.camera.top = d;	light1.shadow.camera.bottom = -d;
+		    light1.shadow.camera.near = 2;  light1.shadow.camera.far = 200*WORLDSCALE;
+			scene_physi.add( light1 );
+
+			col=0xffe8bc;
+			light2 = new THREE.PointLight( col, intensity, dist,decay );
+			var obj2= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+			light2.add(obj2);
+			light2.obj=obj2;
+			light2.castShadow=ENABLESHADOWS;
+			light2.shadow.mapSize.x = mapsize; light2.shadow.mapSize.y = mapsize;
+            light2.shadow.camera.left = -d; light2.shadow.camera.right = d;	light2.shadow.camera.top = d;	light2.shadow.camera.bottom = -d;
+		    light2.shadow.camera.near = 2;  light2.shadow.camera.far = 100*WORLDSCALE;
+			scene_physi.add( light2 );
+
+			col=0x7b8fff2;//ffbc5e;
+			light3 = new THREE.PointLight( col,intensity,dist,decay );
+			var obj3= new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: col, transparent:true } ) );
+			light3.add(obj3);
+			light3.obj=obj3;
+			light3.castShadow=ENABLESHADOWS;
+			light3.shadow.mapSize.x = mapsize; light3.shadow.mapSize.y = mapsize;
+            light3.shadow.camera.left = -d; light3.shadow.camera.right = d;	light3.shadow.camera.top = d;	light3.shadow.camera.bottom = -d;
+		    light3.shadow.camera.near = 2;  light3.shadow.camera.far = 100*WORLDSCALE;
+			scene_physi.add( light3 );
+				
+		}
+
+
+
+	function manageLoading()
+		{	var loader = new THREE.TextureLoader();
+			//tex_stoneStaple = 	loader.load( "img/staple.jpg" );
+			
+			tex_grid =			loader.load( "img/grid.png" );
+
+			var skypath = "img/sky54/";
+			var skyformat = '.jpg';
+			var skyurls = [
+					skypath + 'px' + skyformat, skypath + 'nx' + skyformat,
+					skypath + 'py' + skyformat, skypath + 'ny' + skyformat,
+					skypath + 'pz' + skyformat, skypath + 'nz' + skyformat
+				];
+			tex_reflectionCube = new THREE.CubeTextureLoader().load( skyurls );
+
+			// AUDIO INIT -----------------------------------------------------------------------------------
+
+			listener = new THREE.AudioListener();
+			audioBgloop = new THREE.Audio( listener );
+			bgloop = new THREE.AudioLoader().load( 'snd/shrine_back_loop.mp3', function( buffer ) {
+				audioBgloop.setBuffer( buffer );
+				audioBgloop.setLoop(true);
+				audioBgloop.setVolume(0);
+				
+				audioBgloop.play();
+			});
+
+					audioFreezeloop = new THREE.Audio( listener );
+			freeze = new THREE.AudioLoader().load( 'snd/shrine_frozen_loop.mp3', function( buffer ) {
+				audioFreezeloop.setBuffer( buffer );
+				audioFreezeloop.setLoop(true);
+				audioFreezeloop.setVolume(0);
+				
+				audioFreezeloop.play();
+			});
+		
+			audioRumba = new THREE.Audio( listener );
+			rumba = new THREE.AudioLoader().load( 'snd/rumba.mp3', function( buffer ) {
+				audioRumba.setBuffer( buffer );
+				audioRumba.setLoop(true);
+				audioRumba.setVolume(0);
+		
+				audioRumba.play();
+			});
+
+			audioRainrumba = new THREE.Audio( listener );
+			rainrumba = new THREE.AudioLoader().load( 'snd/rain_rumba.mp3', function( buffer ) {
+				audioRainrumba.setBuffer( buffer );
+				audioRainrumba.setLoop(true);
+				audioRainrumba.setVolume(0);
+				
+				audioRainrumba.play();
+			});
+
+			audioOsc1_1 = new THREE.Audio( listener );
+			snd_osc1_1 = new THREE.AudioLoader().load( 'snd/sph_3_1.wav', function( buffer ) {
+				audioOsc1_1.setBuffer( buffer );
+				audioOsc1_1.setLoop(true);
+				audioOsc1_1.setVolume(0);
+				
+				audioOsc1_1.play();
+			});
+			//listener = new THREE.AudioListener();
+			audioOsc2_1 = new THREE.Audio( listener );
+			snd_osc2_1 = new THREE.AudioLoader().load( 'snd/sph_2_1.wav', function( buffer ) {
+				audioOsc2_1.setBuffer( buffer );
+				audioOsc2_1.setLoop(true);
+				audioOsc2_1.setVolume(0);
+
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioOsc2_1.play();
+			});
+			
+			//listener = new THREE.AudioListener();
+			audioOsc3_1 = new THREE.Audio( listener );
+			snd_osc3_1 = new THREE.AudioLoader().load( 'snd/sph_1_1.wav', function( buffer ) {
+				audioOsc3_1.setBuffer( buffer );
+				audioOsc3_1.setLoop(true);
+				audioOsc3_1.setVolume(0);
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioOsc3_1.play();
+			});
+
+			audioOsc1_2 = new THREE.Audio( listener );
+			snd_osc1_2 = new THREE.AudioLoader().load( 'snd/sph_3_2.wav', function( buffer ) {
+				audioOsc1_2.setBuffer( buffer );
+				audioOsc1_2.setLoop(true);
+				audioOsc1_2.setVolume(0);
+				
+				audioOsc1_2.play();
+			});
+			//listener = new THREE.AudioListener();
+			audioOsc2_2 = new THREE.Audio( listener );
+			snd_osc2_2 = new THREE.AudioLoader().load( 'snd/sph_2_2.wav', function( buffer ) {
+				audioOsc2_2.setBuffer( buffer );
+				audioOsc2_2.setLoop(true);
+				audioOsc2_2.setVolume(0);
+
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioOsc2_2.play();
+			});
+			
+			//listener = new THREE.AudioListener();
+			audioOsc3_2 = new THREE.Audio( listener );
+			snd_osc3_2 = new THREE.AudioLoader().load( 'snd/sph_1_2.wav', function( buffer ) {
+				audioOsc3_2.setBuffer( buffer );
+				audioOsc3_2.setLoop(true);
+				audioOsc3_2.setVolume(0);
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioOsc3_2.play();
+			});
+
+			audioFrOsc1_1 = new THREE.Audio( listener );
+			snd_Frosc1_1 = new THREE.AudioLoader().load( 'snd/sph_fr_3_1.wav', function( buffer ) {
+				audioFrOsc1_1.setBuffer( buffer );
+				audioFrOsc1_1.setLoop(true);
+				audioFrOsc1_1.setVolume(0);
+				
+				audioFrOsc1_1.play();
+			});
+			//listener = new THREE.AudioListener();
+			audioFrOsc2_1 = new THREE.Audio( listener );
+			snd_Frosc2_1 = new THREE.AudioLoader().load( 'snd/sph_fr_2_1.wav', function( buffer ) {
+				audioFrOsc2_1.setBuffer( buffer );
+				audioFrOsc2_1.setLoop(true);
+				audioFrOsc2_1.setVolume(0);
+
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioFrOsc2_1.play();
+			});
+			
+			//listener = new THREE.AudioListener();
+			audioFrOsc3_1 = new THREE.Audio( listener );
+			snd_Frosc3_1 = new THREE.AudioLoader().load( 'snd/sph_fr_1_1.wav', function( buffer ) {
+				audioFrOsc3_1.setBuffer( buffer );
+				audioFrOsc3_1.setLoop(true);
+				audioFrOsc3_1.setVolume(0);
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioFrOsc3_1.play();
+			});
+
+			audioFrOsc1_2 = new THREE.Audio( listener );
+			snd_Frosc1_2 = new THREE.AudioLoader().load( 'snd/sph_fr_3_2.wav', function( buffer ) {
+				audioFrOsc1_2.setBuffer( buffer );
+				audioFrOsc1_2.setLoop(true);
+				audioFrOsc1_2.setVolume(0);
+			
+				audioFrOsc1_2.play();
+			});
+			//listener = new THREE.AudioListener();
+			audioFrOsc2_2 = new THREE.Audio( listener );
+			snd_Frosc2_2 = new THREE.AudioLoader().load( 'snd/sph_fr_2_2.wav', function( buffer ) {
+				audioFrOsc2_2.setBuffer( buffer );
+				audioFrOsc2_2.setLoop(true);
+				audioFrOsc2_2.setVolume(0);
+
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioFrOsc2_2.play();
+			});
+			
+			//listener = new THREE.AudioListener();
+			audioFrOsc3_2 = new THREE.Audio( listener );
+			snd_Frosc3_2 = new THREE.AudioLoader().load( 'snd/sph_fr_1_2.wav', function( buffer ) {
+				audioFrOsc3_2.setBuffer( buffer );
+				audioFrOsc3_2.setLoop(true);
+				audioFrOsc3_2.setVolume(0);
+		//		audioOsc3.setRefDistanc(20*WORLDSCALE);
+				audioFrOsc3_2.play();
+			});
+			
+
+			//listener = new THREE.AudioListener();
+			audioBassic1 = new THREE.Audio( listener );
+			snd_Bassic1 = new THREE.AudioLoader().load( 'snd/bassic_1.mp3', function( buffer ) {
+				audioBassic1.setBuffer( buffer );
+				audioBassic1.setLoop(false);
+				audioBassic1.setVolume(0);
+				audioBassic1.play();
+			});
+			audioBassic2 = new THREE.Audio( listener );
+			snd_Bassic2 = new THREE.AudioLoader().load( 'snd/bassic_2.mp3', function( buffer ) {
+				audioBassic2.setBuffer( buffer );
+				audioBassic2.setLoop(false);
+				audioBassic2.setVolume(0);
+				audioBassic2.play();
+			});
+			audioBassic3 = new THREE.Audio( listener );
+			snd_Bassic3 = new THREE.AudioLoader().load( 'snd/bassic_3.mp3', function( buffer ) {
+				audioBassic3.setBuffer( buffer );
+				audioBassic3.setLoop(false);
+				audioBassic3.setVolume(0);
+				audioBassic3.play();
+			});
+
+			audioBassic1_1 = new THREE.Audio( listener );
+			snd_Bassic1_1 = new THREE.AudioLoader().load( 'snd/bassic_4.mp3', function( buffer ) {
+				audioBassic1_1.setBuffer( buffer );
+				audioBassic1_1.setLoop(false);
+				audioBassic1_1.setVolume(0);
+				audioBassic1_1.play();
+			});
+			audioBassic2_1 = new THREE.Audio( listener );
+			snd_Bassic2_1 = new THREE.AudioLoader().load( 'snd/bassic_5.mp3', function( buffer ) {
+				audioBassic2_1.setBuffer( buffer );
+				audioBassic2_1.setLoop(false);
+				audioBassic2_1.setVolume(0);
+				audioBassic2_1.play();
+			});
+			audioBassic3_1 = new THREE.Audio( listener );
+			snd_Bassic3_1 = new THREE.AudioLoader().load( 'snd/bassic_6.mp3', function( buffer ) {
+				audioBassic3_1.setBuffer( buffer );
+				audioBassic3_1.setLoop(false);
+				audioBassic3_1.setVolume(0);
+				audioBassic3_1.play();
+			});
+
+			//listener = new THREE.AudioListener();
+			audioKling = new THREE.Audio( listener );
+			snd_Kling = new THREE.AudioLoader().load( 'snd/klingeling.mp3', function( buffer ) {
+				audioKling.setBuffer( buffer );
+				audioKling.setLoop(true);
+				audioKling.setVolume(0);
+				audioKling.play();
+			});
+
+
+			//---------------------------------------------------------------------------
+			
+			
+
+			THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+
+			//console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+			
+
+			};
+
+			THREE.DefaultLoadingManager.onLoad = function ( ) {
+
+				//console.log( 'Loading Complete!'); 
+				console.log("")
+				setTimeout(initWorld,100);  // otherwise the sound loader produces an error (because the file seems to be not there yet)
+				console.log("there might always be beginnings")
+
+			};
+
+
+			THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+
+			//	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+			//var el=document.getElementById("loadingBar");
+			document.getElementById("loadingBar").style.width=(1-itemsLoaded/itemsTotal)*60;
+
+			};
+
+			THREE.DefaultLoadingManager.onError = function ( url ) {
+
+				console.log( 'There was an error loading ' + url );
+
+			}
+			
+		}
+
+
+	// RESTARTING -----------------------------------------------
+
+	function prepareReset()	// initiating reset, called once
+		{//	SIMULATE=false;
+			freezeSimulation(true);
+			tGlobalLightInt=-0.5;
+			isResetting=true;
+			clearInterval(resetInterval);
+			resetInterval=setInterval(prepareResetTO,25);
+		}
+
+
+	function prepareResetTO()
+		{	//scene_physi.background.transparent=true;
+			//scene_physi.background.opacity=0
+			//skybox.material.opacity=0;
+			skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
+			;
+			if (light1.intensity<=0) 
+				{clearInterval(resetInterval)
+				 reset();
+				}
+		}
+
+
+	function reset()  // the actual reset, called once
+	    {
+	    	layoutHeights=[
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],
+	            [0,0,0,0,0,0,0,0,0,0],];
+	      
+	      	updateLayoutHeights(2,3, 6,4, plinthHeight); // dirty fix - the plinth is not recreated, so the layoutHeights Matrix needs to have its heights
+
+	      	// reset the plinth to original position -- if the plinth has moved (bug!!)
+	      	plinth.setAngularFactor(new THREE.Vector3( 0, 0, 0 )); 
+				plinth.setLinearFactor(new THREE.Vector3( 0, 0, 0 )); 
+				plinth.position.set(0, plinthHeight*WORLDSCALE/2, 0);
+				plinth.__dirtyPosition = true;
+				plinth.rotation.set(0,0,0);
+				plinth.__dirtyRotation = true
+				plinth.mass=0;
+
+	      	for (var i=0;i<removeableBodies.length;i++)
+			    {
+			      	scene_physi.remove(removeableBodies[i]);
+			      	renderer.dispose( physiBodies[i] );
+			    }
+	      
+	      	removeableBodies = [];
+
+	      	countdown=1;
+			light1PulseAng=0;
+			light2PulseAng=0;
+			light3PulseAng=0;
+
+		    createRemoveableBodies();
+		    setTimeout(function() {resetInterval=setInterval(afterResetTO,25)}, 200);
+		    //setTimeout(function() {SIMULATE=true}, 5000);
+		    setTimeout(function(){freezeSimulation(false)},5000);
+
+	    }
+
+	function afterResetTO()
+	   {
+		   	skyBoxMaterial.uniforms.opacity= { type: "f", value: light1.intensity  };
+		    //freezeSimulation(false);
+		  
+		   	tGlobalLightInt=1;
+		   	if (light1.intensity>=0.9) 
+				{clearInterval(resetInterval)
+				 skyBoxMaterial.uniforms.opacity= { type: "f", value: 1  };
+				 isResetting=false;
+				}
+		   	
+
+	   }
+
+
+
+	function updateTexCanvas()
+		{	
+		  	// canvas w 512 >> use only 512*9/16 
+		  	var asp=9/16;
+		  //	context.font = '30pt Arial';
+		    context.fillStyle = 'white';
+		  //  context.fillRect(0, 0, canvas.width*asp, canvas.height);
+		 //   context.fillStyle = 'black';
+		  //  context.fillRect(10, 10, canvas.width*asp - 20, (canvas.height - 20)*( 1 -Math.min(1,countdown))  );
+		    var img = new Image();
+			
+			img.onload = function() {
+    			context.drawImage(img, 0, 0, canvas.width*asp , canvas.height);
+				}
+			img.src = 'img/staple.jpg';
+		  //  context.fillStyle = 'black';
+		 //   context.textAlign = "center";
+		  //  context.textBaseline = "middle";
+		  //  context.fillText( Math.round(countdown), canvas.width*asp / 2, canvas.height / 2);
+
+		  	var h= Math.min(1,countdown)*canvas.height;
+		    context.fillRect(0,canvas.height-h, canvas.width*asp - 20, h)  ;
+		    tex_canvas.repeat.set(asp,1);
+		    tex_canvas.needsUpdate = true;
+		}
+
+
+    
+// layoutheight matrix --------------------------------------------------------------------------------
+	
+	function updateLayoutHeights(x,y ,w,h, value) // all integers 0...9
+        {   
+            for (var ix=x;ix<w+x;ix++)
+                {
+                    for (var iy=y;iy<h+y;iy++)
+                        {
+                         layoutHeights[ix][iy]= value;
+                        // console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
+                        }
+                }
+        }
+
+     function checkLayoutHeightViolation(x,y ,w,h, value) // all integers 0...9
+        {   var violation=false;
+        	
+            for (var ix=x;ix<w+x;ix++)
+                {
+                    for (var iy=y;iy<h+y;iy++)
+                        {
+                         if (layoutHeights[ix][iy]>value) violation=true;
+                         //console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
+                        }
+                }
+
+         return violation   
+        }
+
+   function checkLayoutMaxHeight(x,y ,w,h, value) // all integers 0...9
+        {   var violation=false;
+        	var maxValue=0;
+            for (var ix=x;ix<w+x;ix++)
+                {
+                    for (var iy=y;iy<h+y;iy++)
+                        {maxValue=Math.max(layoutHeights[ix][iy],maxValue)
+                         if (layoutHeights[ix][iy]>value) violation=true;
+                        // console.log("height="+ix+"/"+iy+" >"+layoutHeights[ix][iy])
+                        }
+                }
+
+         return maxValue   
+        }
+
+	function ready()
+		{//console.log("ready");
+		}
+
+
+  
+	
+	function createStaticBodies() // happens only once
+		{	
+			physiBoxMaterial= Physijs.createMaterial(
+					new THREE.MeshPhongMaterial(), //cubeMaterialDull,//
+					.6, // medium friction
+					.3 // low restitution
+				);
+
+			
+            createPlinth();
+            createScreen(9/4,16/4,6);
+            //	 createAura();
+		}
+
+
+	function createRemoveableBodies() // happens after every reset
+	    {var amount=30;
+	     var yMult=0.6;
+	     HIGHESTOBJECT=amount*yMult;
+
+	    	for (var i=3;i<amount;i++)
+			 {	 var x=Math.round(Math.random()*9);
+				 var y=Math.round(Math.random()*9);
+				 var w=Math.min(4,Math.max(1,Math.round(Math.random()*(10-x))));
+				 var h=Math.min(4,Math.max(1,Math.round(Math.random()*(10-y))));
+				 createLayoutTable(x,y, w,h, i*yMult, true);
+			 }
+		
+	    }
+		
+	
+
+		
 
 		function onWindowResize() {
 			//console.log("resize");
@@ -1146,7 +1143,7 @@ function initSound()
 		            	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
 		           		 //countdown-=delta;
 		           		}
-		            if (countdown<=0 && !resetting) 
+		            if (countdown<=0 && !isResetting) 
 		            	{prepareReset();
 		            	 //console.log("prepare reset");
 		            	}
@@ -1177,13 +1174,15 @@ function initSound()
 						}
 					*/
 		           	
-					setTimeout( function() 
-						{  //limit the framerate to 30 fps
-
-							//requestAnimationFrame( render ); //	if (delta<160) 
-
+		           	 //limit the framerate to 30 fps 
+		           	/*
+					setTimeout( function()
+						{  
+							requestAnimationFrame( render ); //	if (delta<160) 
 						}, 1000 / 30 );
+					*/
 						requestAnimationFrame( render ); //	if (delta<160) 
+
 					/*
 					if (makeSnapshot && UHQ)
 						{	light1.intensity=1;
@@ -1203,52 +1202,48 @@ function initSound()
 			
 		}
 
-//==============================================================================================================================================
+// INTERACTION ==============================================================================================================================================
+
     function deactivate()
-	 {	console.log("deak");
-		 freezeSimulation(true);
-		 
-		 document.getElementById("gui").style.visibility='hidden';
-		 document.getElementById("activate").style.visibility='visible';
-		 muteSound();
-		 ACTIVATED=false;
-	 }
+		{	console.log("deak");
+			 freezeSimulation(true);
+			 
+			 document.getElementById("gui").style.visibility='hidden';
+			 document.getElementById("activate").style.visibility='visible';
+			 muteSound();
+			 ACTIVATED=false;
+		}
 
 	function activate()
 		{	clock.getDelta(); // call once to reset the oldTime (and get rid of the timegap)
 			ACTIVATED=true;
 			STARTED=false;
-			//document.getElementById("gui").style.visibility='visible';
-		 	//document.getElementById("activate").style.visibility='hidden';
-			
 			render();
 			//freezeSimulation(true);
-
 		} 
 
 
     function toggleQuality()
-      {
-		ENABLESHADOWS=!ENABLESHADOWS;
-		light1.castShadow=ENABLESHADOWS;
-		light2.castShadow=ENABLESHADOWS;
-      	light3.castShadow=UHQ;//ENABLESHADOWS;
-      	screenLight.castShadow=ENABLESHADOWS;
-      	// not possible at runtim
-      	//ANTIALIAS=ENABLESHADOWS;
-      	//scene_physi.antialias=ENABLESHADOWS;
-      }
+      	{
+			ENABLESHADOWS=!ENABLESHADOWS;
+			light1.castShadow=ENABLESHADOWS;
+			light2.castShadow=ENABLESHADOWS;
+	      	light3.castShadow=UHQ;//ENABLESHADOWS;
+	      	screenLight.castShadow=ENABLESHADOWS;
+      	}
+
 
    function toggleSound()
-     {MUTED=!MUTED;
-     	if (MUTED)
-     	{
-     		muteSound();
-     	}
-     else 
-     	freezeSimulation(!SIMULATE);
+	    {MUTED=!MUTED;
+	     	if (MUTED)
+	     	{
+	     		muteSound();
+	     	}
+	     else 
+	     	freezeSimulation(!SIMULATE);
 
-     }
+	    }
+
 	 function muteSound()
 	   {
 		   audioFreezeloop.setVolume(0);
@@ -1276,16 +1271,17 @@ function initSound()
 			audioKling.setVolume(0);
 	   }
 
+
 	function animateLights(delta)
         {   
-            var t=clock.elapsedTime;
+        	var t=clock.elapsedTime;
             
             var r=9*WORLDSCALE;
             var yos=6*WORLDSCALE;
             var yr=5*WORLDSCALE;
 
             var os=Math.PI*2/3;
-           // light1.intensity=light2.intensity=light3.intensity=0.6;
+           	// light1.intensity=light2.intensity=light3.intensity=0.6;
 
             var l1y=Math.sin( t * 0.5  );
             var l2y=Math.sin( t * 0.5 +os );
@@ -1293,9 +1289,9 @@ function initSound()
 
             if (SIMULATE)
 	            {
-	            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
-	            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
-	            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
+		            light1PulseAng+=10*delta*(l1y+1)/2+0.1;
+		            light2PulseAng+=10*delta*(l2y+1)/2+0.1;
+		            light3PulseAng+=10*delta*(l3y+1)/2+0.1;
 	            }
             
             var l1Int= (((Math.sin(light1PulseAng)+1)/2)+0.1 ) ;
@@ -1321,124 +1317,116 @@ function initSound()
            // light3.position.z = Math.cos( 1 * 0.03 +2*os) * r;
 
             // constrain light to camera movement
-            var l3x=camera.position.x*0.3  +Math.sin( t * 0.3 +2*os) * 0.5*WORLDSCALE;
-            var l3z=camera.position.z*0.3  +Math.cos( t * 0.1 ) * 0.5*WORLDSCALE;
+            var l3x=camera.position.x*0.4; //  +Math.sin( t * 0.3 +2*os) * 0.5*WORLDSCALE;
+            var l3z=camera.position.z*0.3; //  +Math.cos( t * 0.1 ) * 0.5*WORLDSCALE;
             light3.position.x+=(l3x-light3.position.x)/5.0; 
             light3.position.z+=(l3z-light3.position.z)/5.0;
 
             cGlobalLightInt+=(tGlobalLightInt-cGlobalLightInt)/60;
             var intMult=1.0;
-            if (!STARTED) intMult=0.1;
+            if (!STARTED) intMult=0.2;
             // blinking at top and bottom positions
-            var l1IntOs=0,l2IntOs=0,l3IntOs=0;
-            if (!resetting && STARTED)
-	            {if(Math.abs(l1y)>0.99) l1IntOs=2;
-	            if(Math.abs(l2y)>0.99) l2IntOs=2;
-	            if(Math.abs(l3y)>0.99) l3IntOs=2;
-	        	}
-            light1.intensity=cGlobalLightInt*l1Int*intMult+l1IntOs;
-            light2.intensity=cGlobalLightInt*l2Int*intMult+l2IntOs;
-            light3.intensity=cGlobalLightInt*l3Int*intMult+l3IntOs;
+           
+            light1.intensity=cGlobalLightInt*l1Int*intMult;
+            light2.intensity=cGlobalLightInt*l2Int*intMult;
+            light3.intensity=cGlobalLightInt*l3Int*intMult;
             
-            light1.obj.material.opacity=(cGlobalLightInt*l1Int)+l1IntOs;
-            light2.obj.material.opacity=(cGlobalLightInt*l2Int)+l2IntOs;
-            light3.obj.material.opacity=(cGlobalLightInt*l3Int)+l3IntOs;
+            light1.obj.material.opacity=(cGlobalLightInt*l1Int);
+            light2.obj.material.opacity=(cGlobalLightInt*l2Int);
+            light3.obj.material.opacity=(cGlobalLightInt*l3Int);
 
-            var h=0;
+            
             screenLight.intensity=  (countdown)*cGlobalLightInt;//Math.sin(t*0.025)/2+0.5;
-           // screenLight.color.setHSL(h,0,screenLight.intensity);
-	        screenObj.material.color.setHSL(h,0,cGlobalLightInt);
-            /*
-            if ( Math.random()<0.2)
-            	{	
-	            screenLight.intensity=Math.random()*1;
-	            var h=Math.random();
-	            screenLight.color.setHSL(h,1,screenLight.intensity);
-	            screenObj.material.color.setHSL(h,1,screenLight.intensity);
-	            screenObj.material.map=tex_screen[Math.round(Math.random()*2)];
-           		}
-           		*/
-
-        
+            screenObj.material.color.setHSL(0,0,cGlobalLightInt);
            	
-           	var l1Dist= camera.position.distanceTo(light1.position)/WORLDSCALE /10;  //.distanceToSquared 
-           	var l2Dist= camera.position.distanceTo(light2.position)/WORLDSCALE/10;  //.distanceToSquared 
+           	var l1Dist= camera.position.distanceToSquared(light1.position)/WORLDSCALE 	/10;  //.distanceToSquared 
+           	var l2Dist= camera.position.distanceToSquared(light2.position)/WORLDSCALE	/10;  //.distanceToSquared 
 	        
+
            	// SOUND _-----------------------------------------------
 
-
            	if (STARTED && !MUTED)
-           	{var globalV=Math.max(0,cGlobalLightInt);
+	           	{var globalV=Math.max(0,cGlobalLightInt);
 
-			if (!SIMULATE)
-				{
+				if (!SIMULATE)
+					{
+						var mult=0.3;
+						 audioFrOsc1_1.setVolume( ( ((light1.position.y/yr))/9	*	(1/l1Dist	*l1Int		*globalV))*mult);
+						 audioFrOsc2_1.setVolume( ( ((light2.position.y/yr))/9   *	(1/l2Dist	*l2Int		*globalV))*mult);
+						 audioFrOsc3_1.setVolume( ( ((light3.position.y/yr))/9	*	(l3Int		*globalV))*mult);
+						 
+						 audioFrOsc1_2.setVolume( ( ((light1.position.y/yr))/4	*	(1/l1Dist	*l1Int		*globalV))*mult);
+						 audioFrOsc2_2.setVolume( ( ((light2.position.y/yr))/4   *	(1/l2Dist	*l2Int		*globalV))*mult);
+						 audioFrOsc3_2.setVolume( ( ((light3.position.y/yr))/4	*	(l3Int		*globalV))*mult);
+						 audioKling.setVolume(0);
+						 audioBgloop.setVolume(0);
+					}
 
+				else 
+					{
 
-				var mult=0.3;
-				 audioFrOsc1_1.setVolume( ( ((light1.position.y/yr))/9	*	(1/l1Dist	*l1Int		*globalV))*mult);
-				 audioFrOsc2_1.setVolume( ( ((light2.position.y/yr))/9   *	(1/l2Dist	*l2Int		*globalV))*mult);
-				 audioFrOsc3_1.setVolume( ( ((light3.position.y/yr))/9	*	(l3Int		*globalV))*mult);
-				 
+						audioOsc1_1.setVolume(1/l1Dist	*l1Int		*globalV *0.3);
+						audioOsc2_1.setVolume(1/l2Dist	*l2Int		*globalV*0.3);
+						audioOsc3_1.setVolume(l3Int		*globalV*0.3);
 
-				 audioFrOsc1_2.setVolume( ( ((light1.position.y/yr))/4	*	(1/l1Dist	*l1Int		*globalV))*mult);
-				 audioFrOsc2_2.setVolume( ( ((light2.position.y/yr))/4   *	(1/l2Dist	*l2Int		*globalV))*mult);
-				 audioFrOsc3_2.setVolume( ( ((light3.position.y/yr))/4	*	(l3Int		*globalV))*mult);
-				 audioKling.setVolume(0);
-				 audioBgloop.setVolume(0);
-				 }
-			else 
-				{
+						audioOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*globalV));
+						audioOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*globalV));
+						audioOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*globalV));
 
-				 audioOsc1_1.setVolume(1/l1Dist	*l1Int		*globalV *0.3);
-				 audioOsc2_1.setVolume(1/l2Dist	*l2Int		*globalV*0.3);
-				 audioOsc3_1.setVolume(l3Int		*globalV*0.3);
+						audioKling.setVolume((1-(countdown))*0.3);
+						audioBgloop.setVolume((countdown)*0.2);
+					 
+					}
 
-				 audioOsc1_2.setVolume(((light1.position.y/yr))/18	*	(1/l1Dist	*l1Int		*globalV));
-				 audioOsc2_2.setVolume(((light2.position.y/yr))/18   *	(1/l2Dist	*l2Int		*globalV));
-				 audioOsc3_2.setVolume(((light3.position.y/yr))/18	*	(l3Int		*globalV));
+				if (!isResetting)
+					{	
+						if(Math.abs(l1y)>0.99) 
+							{light1.intensity=2;light1.obj.material.opacity=1;}
+		            	if(Math.abs(l2y)>0.99) 
+		            		{light2.intensity=2;light2.obj.material.opacity=1;}
+		            	if(Math.abs(l3y)>0.99) 
+		            		{light3.intensity=2;light3.obj.material.opacity=1;}
+					
 
-				 audioKling.setVolume((1-(countdown))*0.3);
-				 audioBgloop.setVolume((countdown)*0.2);
-				 
-				//console.log(globalV);
-				 }
+						if ((l3y<-0.99) && !audioBassic1.isPlaying )
+						 	{	
+								audioBassic1.setVolume(0.3*globalV);
+						 		audioBassic1.play();
+						 	}
+						 if ((l3y>0.99) && !audioBassic1_1.isPlaying )
+						 	{	
+						 		audioBassic1_1.setVolume(0.3*globalV);
+						 		audioBassic1_1.play();
+						 	}
 
-				 if ((l3y<-0.99) && !audioBassic1.isPlaying )
-				 	{	
-						audioBassic1.setVolume(0.3*globalV);
-				 		audioBassic1.play();
-				 	}
-				 if ((l3y>0.99) && !audioBassic1_1.isPlaying )
-				 	{	audioBassic1_1.setVolume(0.3*globalV);
-				 		audioBassic1_1.play();
-				 		
-				 	}
+						 if ((l1y<-0.99) && !audioBassic3.isPlaying )
+						 	{	
+								audioBassic3.setVolume(0.3*1/l1Dist*globalV);
+						 		audioBassic3.play();
+						 	}
 
-				 if ((l1y<-0.99) && !audioBassic3.isPlaying )
-				 	{	
-						audioBassic3.setVolume(0.3*1/l1Dist*globalV);
-				 		audioBassic3.play();
-				 	}
-				 if ((l1y>0.99) && !audioBassic3_1.isPlaying )
-				 	{	audioBassic3_1.setVolume(0.3*1/l1Dist*globalV);
-				 		audioBassic3_1.play();
-				 		
-				 	}
-				 if ((l2y<-0.99) && !audioBassic2.isPlaying )
-				 	{	
-						audioBassic2.setVolume(0.3*1/l2Dist*globalV);
-				 		audioBassic2.play();
-				 	}
-				 if ((l2y>0.99) && !audioBassic2_1.isPlaying )
-				 	{	audioBassic2_1.setVolume(0.3*1/l2Dist*globalV);
-				 		audioBassic2_1.play();
-				 		
-				 	}
+						 if ((l1y>0.99) && !audioBassic3_1.isPlaying )
+						 	{	
+						 		audioBassic3_1.setVolume(0.3*1/l1Dist*globalV);
+						 		audioBassic3_1.play();
+						 		
+						 	}
 
-			}
-				
+						 if ((l2y<-0.99) && !audioBassic2.isPlaying )
+						 	{	
+								audioBassic2.setVolume(0.3*1/l2Dist*globalV);
+						 		audioBassic2.play();
+						 	}
 
+						 if ((l2y>0.99) && !audioBassic2_1.isPlaying )
+						 	{	audioBassic2_1.setVolume(0.3*1/l2Dist*globalV);
+						 		audioBassic2_1.play();
+						 		
+						 	}
 
+						}
+					}
+	
         }
 
     function freezeSimulation(freeze)

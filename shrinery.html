@@ -54,6 +54,11 @@
 			 	document.getElementById("gui").style.visibility='visible';
 			 }
 
+		function butRestart()  // the initial click
+			 {
+			 	if (!isResetting) prepareReset();
+			 }
+
 		function showTooltip(txt)
 		   {   
 		   		if (txt=="shadows")
@@ -96,6 +101,17 @@
 			<div id="tooltip" class="tooltip"></div>
 			<ul>
 				<li>
+					<button id="butReset" type="button" class="quality" onClick="butRestart();" onmouseover="showTooltip('recreate');" onmouseout="showTooltip('');">
+						<svg id="imgQuality" class="default" width="40px" height="80px" viewBox="0 0 40 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+							<style type="text/css">
+								.st0{fill:#FFFFFF;}
+							</style>
+							<path class="st0" d="M20,12c-1.8,0-3.6,0.6-5,1.8V12h-2v5h5v-2h-1.3c1-0.6,2.1-1,3.3-1c3.3,0,6,2.7,6,6s-2.7,6-6,6s-6-2.7-6-6h-2
+								c0,4.4,3.6,8,8,8s8-3.6,8-8S24.4,12,20,12z"/>
+						</svg>
+					</button>
+				</li><!--
+				--><li>
 					<button id="butQuality" type="button" class="quality" onClick="butQualityToggle();" onmouseover="showTooltip('shadows');" onmouseout="showTooltip('');">
 						<svg id="imgQuality" class="default" width="40px" height="80px" viewBox="0 0 40 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 							<g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -218,7 +234,6 @@
 		var light1,light2,light3;
 		var light1PulseAng=0,light2PulseAng=0,light3PulseAng=0;
 		var screenLight;			
-		
 		var screenObj;				// the central screen object/model on the plinth
 
         // TEXTURES - all textures are global for easier load management
@@ -226,7 +241,7 @@
         var tex_reflectionCube;
         var tex_grid;
         
-
+        var cmaxY=0; // for the calculation of the highest object
         // for rendering the dynamic texture into the screen
         var canvas, context, tex_canvas;
 
@@ -286,7 +301,7 @@
    			//	tex_canvas.minFilter=THREE.NearestMipMapLinearFilter;
    			lineMaterial=new THREE.LineBasicMaterial({color:0xffffff});//( color, linewidth, linecap, linejoin, vertexColors );
 
-			scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/60 }); //{ reportsize: 50, fixedTimeStep: 1/60 }  // use 1/30 in combination with the framerateLimitter to 1000/30 timeout call
+			scene_physi =new Physijs.Scene({reportsize:200, fixedTimeStep: 1/30 }); //{ reportsize: 50, fixedTimeStep: 1/60 }  // use 1/30 in combination with the framerateLimitter to 1000/30 timeout call
 			
            	initCamera();
            	initRenderer();
@@ -870,11 +885,14 @@
 
 	function prepareReset()	// initiating reset, called once
 		{//	SIMULATE=false;
+
 			freezeSimulation(true);
 			tGlobalLightInt=-0.5;
 			isResetting=true;
 			clearInterval(resetInterval);
+			countdown=0;
 			resetInterval=setInterval(prepareResetTO,25);
+
 		}
 
 
@@ -892,7 +910,7 @@
 
 
 	function reset()  // the actual reset, called once
-	    {
+	    {	
 	    	layoutHeights=[
 	            [0,0,0,0,0,0,0,0,0,0],
 	            [0,0,0,0,0,0,0,0,0,0],
@@ -923,6 +941,7 @@
 			    }
 	      
 	      	removeableBodies = [];
+	      	layoutTables=[];
 
 	      	countdown=1;
 			light1PulseAng=0;
@@ -930,7 +949,7 @@
 			light3PulseAng=0;
 
 		    createRemoveableBodies();
-		    setTimeout(function() {resetInterval=setInterval(afterResetTO,25)}, 200);
+		    setTimeout(function() {clearInterval(resetInterval);resetInterval=setInterval(afterResetTO,25)}, 200);
 		    //setTimeout(function() {SIMULATE=true}, 5000);
 		    setTimeout(function(){freezeSimulation(false)},5000);
 
@@ -1115,31 +1134,34 @@
 		}
 
 	function checkHighestObjects()
-	  	{var cmaxY=0;
+	  	{//var cmaxYOld=cmaxY;
+	  	 cmaxY=0;
 	  	 
 	  	 var osY=4; // at which y the countdown will be 0
 
 	  		for (var lt in layoutTables)
 	  		{	var p=(layoutTables[lt].top.position.y/WORLDSCALE);
-	  			if (p<=HIGHESTOBJECT) cmaxY=Math.max(cmaxY,p); // prevent objects that are thrown up (and never come down)
+	  			if (p<=HIGHESTOBJECT) 
+	  				{cmaxY=Math.max(cmaxY,p); // prevent objects that are thrown up (and never come down)
+	  			 
+	  				}
 	  		
-
+	  				
 	  		}
+	  	//console.log("delta cmaxy "+(cmaxYOld-cmaxY));
 	  	countdown=Math.min(countdown,Math.max(0,(cmaxY-osY)/(HIGHESTOBJECT-osY)));
-	  	//console.log(countdown);
+	  	
 	  	}
 // THE MAIN RENDER LOOP ----------------------------------------------------------------------------------------
 
 	function render() 
-        { // console.log("render");
-        checkHighestObjects();
+        {//debugger;
+        	
         	if (ACTIVATED)
-				{
-		           var delta=clock.getDelta();
+				{	if(!isResetting) checkHighestObjects();
+		           	var delta=clock.getDelta();
 		          	         
-		          	frm++;
-		          
-		            if (SIMULATE)// && frm%1==0) 
+		          	if (SIMULATE)// && frm%2==0) 
 		            	{scene_physi.simulate(delta, 5 ); //timestep, maxsteps
 		           		 //countdown-=delta;
 		           		}
@@ -1148,11 +1170,11 @@
 		            	 //console.log("prepare reset");
 		            	}
 		           	
-		        	controls.update(delta );
+		        	controls.update(delta);
 					animateLights(delta);
 					updateTexCanvas();
-				
 					if (DEBUG) stats.update();
+				
 					/*
 					for (var i=0;i<layoutTables.length;i++)
 						{	
@@ -1174,14 +1196,15 @@
 						}
 					*/
 		           	
-		           	 //limit the framerate to 30 fps 
-		           	/*
+		           	 //limit the framerate to 30 fps , requires to set the fixedTimestep to 1/30 as well
+		           	
 					setTimeout( function()
 						{  
 							requestAnimationFrame( render ); //	if (delta<160) 
-						}, 1000 / 30 );
-					*/
-						requestAnimationFrame( render ); //	if (delta<160) 
+						}, 1000 / 40 );
+					
+					
+					 //requestAnimationFrame( render ); //	if (delta<160) 
 
 					/*
 					if (makeSnapshot && UHQ)
@@ -1339,8 +1362,8 @@
             screenLight.intensity=  (countdown)*cGlobalLightInt;//Math.sin(t*0.025)/2+0.5;
             screenObj.material.color.setHSL(0,0,cGlobalLightInt);
            	
-           	var l1Dist= camera.position.distanceToSquared(light1.position)/WORLDSCALE 	/10;  //.distanceToSquared 
-           	var l2Dist= camera.position.distanceToSquared(light2.position)/WORLDSCALE	/10;  //.distanceToSquared 
+           	var l1Dist= camera.position.distanceTo(light1.position)/WORLDSCALE 	/10;  //.distanceToSquared 
+           	var l2Dist= camera.position.distanceTo(light2.position)/WORLDSCALE	/10;  //.distanceToSquared 
 	        
 
            	// SOUND _-----------------------------------------------
